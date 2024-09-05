@@ -29,5 +29,4 @@ class Game:
     
 if __name__ == "__main__":
     g = Game()
-    g.move((0,3),(2,2))
-    print(g)
+    print(g.board[0][3].moves())
