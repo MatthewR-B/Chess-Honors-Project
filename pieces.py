@@ -1,5 +1,5 @@
 class Piece:
-    def __init__(self, board, color: str, location: tuple[int]) -> None:
+    def __init__(self, board, color: str, location: tuple[int,int]) -> None:
         self.board = board
         self.color = color
         self.location = location
