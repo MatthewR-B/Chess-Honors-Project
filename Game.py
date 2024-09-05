@@ -19,7 +19,15 @@ class Game:
                 boardStr += ('-' if piece == None else piece.__str__()) + ' '
             boardStr += "\n"
         return boardStr
+
+    def move(self, pos1: tuple[int,int], pos2: tuple[int,int]) -> None:
+        piece = self.board[pos1[0]][pos1[1]]
+        piece.location = pos2
+        self.board[pos2[0]][pos2[1]] = piece
+        self.board[pos1[0]][pos1[1]] = None
+        # Add move logging here
     
 if __name__ == "__main__":
     g = Game()
+    g.move((0,3),(2,2))
     print(g)
