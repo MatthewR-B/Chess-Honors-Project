@@ -6,10 +6,10 @@ class Game:
         pieceList = [Rook,Knight,Bishop,King,Queen,Bishop,Knight,Rook]
         col = 0
         for piece in pieceList:
-            self.board[0][col] = piece(self.board,'black',(0,col))
-            self.board[1][col] = Pawn(self.board,'black',(1,col))
-            self.board[6][col] = Pawn(self.board,'white',(6,col))
-            self.board[7][7-col] = piece(self.board,'white',(7,7-col))
+            self.board[0][col] = piece(self,'black',(0,col))
+            self.board[1][col] = Pawn(self,'black',(1,col))
+            self.board[6][col] = Pawn(self,'white',(6,col))
+            self.board[7][7-col] = piece(self,'white',(7,7-col))
             col += 1
     
     def __str__(self) -> str:
