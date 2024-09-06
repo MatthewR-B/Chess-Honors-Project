@@ -36,4 +36,6 @@ class Game:
     
 if __name__ == "__main__":
     g = Game()
-    print(g.board[0,3].moves())
+    g.setSpace(None,(0,2))
+    for mv in g.board[0][3].getMoves():
+        print(mv)
