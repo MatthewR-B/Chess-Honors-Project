@@ -62,7 +62,7 @@ class Piece:
                         moves.append(candidate)
                     else:
                         break
-                    if limitLength: # limit move to one space in every direction
+                    if limitLength: # limit move to one space in every direction in case of King
                         break
         return moves
         
@@ -94,14 +94,30 @@ class Queen(Piece):
         return 'Q' if self.color == 'white' else 'q'
     
 class Bishop(Piece):
+    def getMoves(self) -> list[Move]:
+        return self.movesInLine(self.diagonalDirections)
+    
     def __str__(self) -> str:
         return 'B' if self.color == 'white' else 'b'
     
 class Knight(Piece):
+    def getMoves(self) -> list[Move]:
+        moves = []
+        row = self.pos[0]
+        col = self.pos[1]
+        for dr in (-2,-1,1,2):
+            for dc in (-2,-1,1,2):
+                candidate = Move((row,col),(row+dr,col+dc))
+                if self.isValid(candidate): moves.append(candidate)
+        return moves
+    
     def __str__(self) -> str:
         return 'N' if self.color == 'white' else 'n'
     
 class Rook(Piece):
+    def getMoves(self) -> list[Move]:
+        return self.movesInLine(self.cardinalDirections)
+    
     def __str__(self) -> str:
         return 'R' if self.color == 'white' else 'r'
     
