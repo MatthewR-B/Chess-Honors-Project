@@ -56,6 +56,24 @@ class King(Piece):
         return 'K' if self.color == 'white' else 'k'
     
 class Queen(Piece):
+    def getMoves(self) -> list[Move]:
+        moves = []
+        for dr in (-1,0,1):
+            for dc in (-1,0,1):
+                if dr != 0 or dc != 0:
+                    row = self.pos[0]
+                    col = self.pos[1]
+                    currentMove = [(row,col)]
+                    while True:
+                        row += dr
+                        col += dc
+                        if self.inBounds(row,col):
+                            currentMove.append((row,col))
+                            moves.append(Move(currentMove.copy()))
+                        else:
+                            break
+        return self.filterMoves(moves)
+            
     def __str__(self) -> str:
         return 'Q' if self.color == 'white' else 'q'
     
