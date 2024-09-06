@@ -20,9 +20,9 @@ class Game:
             boardStr += "\n"
         return boardStr
 
-    def move(self, pos1: tuple[int,int], pos2: tuple[int,int]) -> None:
+    def move(self, pos1: tuple[int,int], pos2: tuple[int,int]) -> None: # CHANGE TO TAKE MOVE OBJECT AS INPUT
         piece = self.getSpace(pos1)
-        piece.loc = pos2
+        piece.pos = pos2
         self.setSpace(piece,pos2)
         self.setSpace(None,pos1)
         # Add move logging here
