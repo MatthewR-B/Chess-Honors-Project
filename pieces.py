@@ -12,10 +12,10 @@ class Move:
 
 class Piece:
     """Parent class for all pieces, storing color, location, and whether the piece has moved yet"""
-    def __init__(self, board, color: str, loc: tuple[int,int]) -> None:
+    def __init__(self, board, color: str, pos: tuple[int,int]) -> None:
         self.board = board
         self.color = color
-        self.loc = loc
+        self.pos = pos
         self.hasMoved = False
     
     def filterMoves(self, moves: list[Move]) -> list[Move]:
