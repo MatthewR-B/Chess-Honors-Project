@@ -32,7 +32,7 @@ class Piece:
     
     def moveFree(self, mv: Move) -> bool:
         """Return True if the last space in a move is empty or the opposite color, and all other spaces are empty"""
-        for loc in mv.spaces[:-1]: # check if all except last space is empty
+        for loc in mv.spaces[1:-1]: # check if all except first and last space are empty
             if self.board.getSpace(loc) != None:
                 return False
         lastSpaceContent = self.board.getSpace(mv.endPos())
