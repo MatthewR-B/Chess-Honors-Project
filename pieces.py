@@ -17,7 +17,7 @@ class Piece:
         """Apply restrictions on moves that are common to all pieces, including staying on the board and not moving through or onto a blocked space"""
         filteredMoves = []
         for candidate in moves:
-            if self.inBounds(candidate) and self.moveFree():
+            if self.inBounds(candidate) and self.moveFree(candidate):
                 filteredMoves.append(candidate)
         return filteredMoves
 
@@ -26,8 +26,14 @@ class Piece:
         pos = mv.endPos()
         return pos[0] >= 0 and pos[0] <= 7 and pos[1] >= 0 and pos[1] <= 7
     
-    def locBlocked(self, loc: tuple[int]) -> bool:
-        """Return true if loc is occupied by a piece of the same color"""
+    def moveFree(self, mv: Move) -> bool:
+        """Return True if the last space in a move is empty or the opposite color, and all other spaces are empty"""
+        for loc in mv.spaces[:-1]: # check if all except last space is empty
+            if self.board.getSpace(loc) != None:
+                return False
+        lastSpaceContent = self.board.getSpace(mv.endPos())
+        return lastSpaceContent == None or lastSpaceContent.color == ('black' if self.color == 'white' else 'white') # check if last space empty or free to be captured
+        
 
 
 class King(Piece):
