@@ -47,7 +47,7 @@ class King(Piece):
         startCol = self.pos[1]
         for row in range(startRow-1, startRow+2): # add moves for 8 spaces around piece
             for col in (startCol-1, startCol-2):
-                if (row != startRow or col != startCol) and self.inBounds(row, col): # only add move if it end on a different space that is on the board
+                if (row != startRow or col != startCol) and self.inBounds(row, col): # only add move if it ends on a different space that is on the board
                     moves.append(Move([(startRow, startCol), (row, col)]))
         # ADD CASTLING
         return self.filterMoves(moves)
