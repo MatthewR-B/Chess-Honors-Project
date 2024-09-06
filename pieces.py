@@ -7,6 +7,9 @@ class Move:
         """Get final space in move"""
         return self.spaces[-1]
 
+    def __str__(self) -> str:
+        return f"{self.spaces[0]} to {self.endPos()}"
+
 class Piece:
     """Parent class for all pieces, storing color, location, and whether the piece has moved yet"""
     def __init__(self, board, color: str, loc: tuple[int,int]) -> None:
@@ -44,7 +47,7 @@ class King(Piece):
         for dy in range(-1,2):
             for dx in (-1,2):
                 if dy != 0 or dx != 0:
-                    moves.append(Move((self.loc[0] + dy, self.loc[1] + dx)))
+                    moves.append(Move([(self.loc[0] + dy, self.loc[1] + dx)]))
         return self.filterMoves(moves)
 
     def __str__(self) -> str:
