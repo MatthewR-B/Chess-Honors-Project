@@ -17,6 +17,10 @@ class Move:
 
 class Piece:
     """Parent class for all pieces, storing color, location, and whether the piece has moved yet"""
+    cardinalDirections = ((1,0),(0,-1),(-1,0),(0,1))
+    diagonalDirections = ((1,1),(1,-1),(-1,-1),(-1,1))
+    allDirecitons = cardinalDirections + diagonalDirections
+
     def __init__(self, board, color: str, pos: tuple[int,int]) -> None:
         self.board = board
         self.color = color
@@ -40,21 +44,35 @@ class Piece:
                 return False
         lastSpaceContent = self.board.getSpace(mv.endPos())
         return lastSpaceContent == None or lastSpaceContent.color == ('black' if self.color == 'white' else 'white') # check if last space empty or free to be captured
+    
+    def movesInLine(self, directions: list[tuple[int,int]], limitLength: bool = False) -> list[Move]:
+        """Return list of all moves available in directions given as a list of tuples of length 2 with values of -1, 0, or 1"""
+        moves = []
+        for dr, dc in directions:
+            if dr != 0 or dc != 0:
+                row = self.pos[0]
+                col = self.pos[1]
+                currentMove = [(row,col)]
+                while True:
+                    row += dr
+                    col += dc
+                    currentMove.append((row,col))
+                    candidate = Move(currentMove.copy())
+                    if (self.isValid(candidate)):
+                        moves.append(candidate)
+                    else:
+                        break
+                    if limitLength: # limit move to one space in every direction
+                        break
+        return moves
         
 
 
 class King(Piece):
     def getMoves(self) -> list[Move]:
-        moves = []
-        row = self.pos[0]
-        col = self.pos[1]
-        for dr in (-1,0,1): # add moves for 8 spaces around piece
-            for dc in (-1,0,1):
-                if (dr != 0 or dc != 0): # only add move if it ends on a different space that is on the board
-                    candidate = Move([(row, col), (row+dr, col+dc)])
-                    if self.isValid(candidate): 
-                        moves.append(candidate)
+        moves = self.movesInLine(self.allDirecitons,limitLength=True)
         if not self.hasMoved: # add castling moves
+            row = self.pos[0]
             leftCorner = self.board.getSpace((row,0))
             rightCorner = self.board.getSpace((row,7))
             if isinstance(leftCorner,Rook) and not leftCorner.hasMoved: # queenside castle
@@ -68,23 +86,7 @@ class King(Piece):
     
 class Queen(Piece):
     def getMoves(self) -> list[Move]:
-        moves = []
-        for dr in (-1,0,1):
-            for dc in (-1,0,1):
-                if dr != 0 or dc != 0:
-                    row = self.pos[0]
-                    col = self.pos[1]
-                    currentMove = [(row,col)]
-                    while True:
-                        row += dr
-                        col += dc
-                        currentMove.append((row,col))
-                        candidate = Move(currentMove.copy())
-                        if (self.isValid(candidate)): 
-                            moves.append(candidate)
-                        else:
-                            break
-        return moves
+        return self.movesInLine(self.allDirecitons)
             
     def __str__(self) -> str:
         return 'Q' if self.color == 'white' else 'q'
