@@ -23,16 +23,14 @@ class Piece:
         self.pos = pos
         self.hasMoved = False
     
-    def filterMoves(self, moves: list[Move]) -> list[Move]:
-        """Apply restrictions on moves that are common to all pieces, including not moving through or onto a blocked space and not moving into check"""
-        filteredMoves = []
-        for candidate in moves:
-            if self.moveFree(candidate): # ADD CHECK DETECTION
-                filteredMoves.append(candidate)
-        return filteredMoves
+    def isValid(self, mv: Move) -> bool:
+        """Apply restrictions on moves that are common to all pieces, including staying on the board, not moving through or onto a blocked space, and not moving into check"""
+        return self.inBounds(mv) and self.moveFree(mv)
 
-    def inBounds(self, row: int, col: int) -> bool:
-        """Return True if the coordinates are on the board"""
+    def inBounds(self, mv: Move) -> bool:
+        """Return True if the last space in mv is on the board"""
+        row = mv.endPos()[0]
+        col = mv.endPos()[1]
         return row >= 0 and row <= 7 and col >= 0 and col <= 7
     
     def moveFree(self, mv: Move) -> bool:
@@ -52,8 +50,10 @@ class King(Piece):
         col = self.pos[1]
         for dr in (-1,0,1): # add moves for 8 spaces around piece
             for dc in (-1,0,1):
-                if (dr != 0 or dc != 0) and self.inBounds(row+dr, col+dc): # only add move if it ends on a different space that is on the board
-                    moves.append(Move([(row, col), (row+dr, col+dc)]))
+                if (dr != 0 or dc != 0): # only add move if it ends on a different space that is on the board
+                    candidate = Move([(row, col), (row+dr, col+dc)])
+                    if self.isValid(candidate): 
+                        moves.append(candidate)
         if not self.hasMoved: # add castling moves
             leftCorner = self.board.getSpace((row,0))
             rightCorner = self.board.getSpace((row,7))
@@ -61,7 +61,7 @@ class King(Piece):
                 moves.append(Move([(row,4),(row,3),(row,1),(row,2)], castle = True)) # include (row,1) to ensure that all spaces between the rook and king are empty
             if isinstance(rightCorner,Rook) and not rightCorner.hasMoved: # kingside castle
                 moves.append(Move([(row,4),(row,5),(row,6)], castle = True))
-        return self.filterMoves(moves)
+        return moves
 
     def __str__(self) -> str:
         return 'K' if self.color == 'white' else 'k'
@@ -78,12 +78,13 @@ class Queen(Piece):
                     while True:
                         row += dr
                         col += dc
-                        if self.inBounds(row,col):
-                            currentMove.append((row,col))
-                            moves.append(Move(currentMove.copy()))
+                        currentMove.append((row,col))
+                        candidate = Move(currentMove.copy())
+                        if (self.isValid(candidate)): 
+                            moves.append(candidate)
                         else:
                             break
-        return self.filterMoves(moves)
+        return moves
             
     def __str__(self) -> str:
         return 'Q' if self.color == 'white' else 'q'
