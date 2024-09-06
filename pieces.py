@@ -2,13 +2,17 @@ class Move:
     """Represents the potential movement of a piece from one space to another, storing the coordinates of all spaces through which the piece must travel"""
     def __init__(self, spaces: list[tuple[int,int]]) -> None:
         self.spaces = spaces
+
+    def startPos(self) -> tuple[int,int]:
+        """Get first space in move"""
+        return self.spaces[0]
     
     def endPos(self) -> tuple[int,int]:
         """Get final space in move"""
         return self.spaces[-1]
 
     def __str__(self) -> str:
-        return f"{self.spaces[0]} to {self.endPos()}"
+        return f"{self.startPos()} to {self.endPos()}"
 
 class Piece:
     """Parent class for all pieces, storing color, location, and whether the piece has moved yet"""
