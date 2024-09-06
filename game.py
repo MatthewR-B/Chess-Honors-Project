@@ -32,10 +32,3 @@ class Game:
 
     def setSpace(self, content: Piece | None, pos: tuple[int,int]) -> None:
         self.board[pos[0]][pos[1]] = content
-
-    
-if __name__ == "__main__":
-    g = Game()
-    g.setSpace(None,(0,2))
-    for mv in g.board[0][3].getMoves():
-        print(mv)
