@@ -3,13 +3,13 @@ from pieces import *
 class Game:
     def __init__(self) -> None:
         self.board = [[None]*8 for i in range(8)]
-        pieceList = [Rook,Knight,Bishop,King,Queen,Bishop,Knight,Rook]
+        pieceList = [Rook,Knight,Bishop,Queen,King,Bishop,Knight,Rook]
         col = 0
         for piece in pieceList:
             self.board[0][col] = piece(self,'black',(0,col))
             self.board[1][col] = Pawn(self,'black',(1,col))
             self.board[6][col] = Pawn(self,'white',(6,col))
-            self.board[7][7-col] = piece(self,'white',(7,7-col))
+            self.board[7][col] = piece(self,'white',(7,col))
             col += 1
     
     def __str__(self) -> str:
