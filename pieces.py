@@ -19,17 +19,16 @@ class Piece:
         self.hasMoved = False
     
     def filterMoves(self, moves: list[Move]) -> list[Move]:
-        """Apply restrictions on moves that are common to all pieces, including staying on the board and not moving through or onto a blocked space"""
+        """Apply restrictions on moves that are common to all pieces, including not moving through or onto a blocked space and not moving into check"""
         filteredMoves = []
         for candidate in moves:
-            if self.inBounds(candidate) and self.moveFree(candidate):
+            if self.moveFree(candidate): # ADD CHECK DETECTION
                 filteredMoves.append(candidate)
         return filteredMoves
 
-    def inBounds(self, mv: Move) -> bool:
-        """Return True if the last space of a move is on the board"""
-        pos = mv.endPos()
-        return pos[0] >= 0 and pos[0] <= 7 and pos[1] >= 0 and pos[1] <= 7
+    def inBounds(self, row: int, col: int) -> bool:
+        """Return True if the coordinates are on the board"""
+        return row >= 0 and row <= 7 and col >= 0 and col <= 7
     
     def moveFree(self, mv: Move) -> bool:
         """Return True if the last space in a move is empty or the opposite color, and all other spaces are empty"""
@@ -44,10 +43,13 @@ class Piece:
 class King(Piece):
     def getMoves(self) -> list[Move]:
         moves = []
-        for dy in range(-1,2):
-            for dx in (-1,2):
-                if dy != 0 or dx != 0:
-                    moves.append(Move([(self.loc[0] + dy, self.loc[1] + dx)]))
+        startRow = self.pos[0]
+        startCol = self.pos[1]
+        for row in range(startRow-1, startRow+2): # add moves for 8 spaces around piece
+            for col in (startCol-1, startCol-2):
+                if (row != startRow or col != startCol) and self.inBounds(row, col): # only add move if it end on a different space that is on the board
+                    moves.append(Move([(startRow, startCol), (row, col)]))
+        # ADD CASTLING
         return self.filterMoves(moves)
 
     def __str__(self) -> str:
