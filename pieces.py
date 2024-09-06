@@ -4,9 +4,11 @@ class Move:
         self.spaces = spaces
     
     def endPos(self) -> tuple[int,int]:
+        """Get final space in move"""
         return self.spaces[-1]
 
 class Piece:
+    """Parent class for all pieces, storing color, location, and whether the piece has moved yet"""
     def __init__(self, board, color: str, loc: tuple[int,int]) -> None:
         self.board = board
         self.color = color
