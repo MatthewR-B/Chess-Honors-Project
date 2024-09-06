@@ -76,9 +76,11 @@ class King(Piece):
             leftCorner = self.board.getSpace((row,0))
             rightCorner = self.board.getSpace((row,7))
             if isinstance(leftCorner,Rook) and not leftCorner.hasMoved: # queenside castle
-                moves.append(Move([(row,4),(row,3),(row,1),(row,2)], castle = True)) # include (row,1) to ensure that all spaces between the rook and king are empty
+                queenside = Move([(row,4),(row,3),(row,1),(row,2)], castle = True) # include (row,1) to ensure that all spaces between the rook and king are empty, even if not passed through by King
+                if self.isValid(queenside): moves.append(queenside) 
             if isinstance(rightCorner,Rook) and not rightCorner.hasMoved: # kingside castle
-                moves.append(Move([(row,4),(row,5),(row,6)], castle = True))
+                kingside = Move([(row,4),(row,5),(row,6)], castle = True)
+                if self.isValid(kingside): moves.append(kingside) 
         return moves
 
     def __str__(self) -> str:

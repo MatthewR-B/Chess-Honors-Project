@@ -22,6 +22,7 @@ class Game:
 
     def move(self, pos1: tuple[int,int], pos2: tuple[int,int]) -> None: # CHANGE TO TAKE MOVE OBJECT AS INPUT
         piece = self.getSpace(pos1)
+        piece.hasMoved = True
         piece.pos = pos2
         self.setSpace(piece,pos2)
         self.setSpace(None,pos1)
