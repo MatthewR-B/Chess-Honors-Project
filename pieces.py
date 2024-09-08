@@ -26,6 +26,10 @@ class Piece:
         self.color = color
         self.pos = pos
         self.hasMoved = False
+
+    def hasPiece(self, pos: tuple[int,int]) -> bool:
+        return isinstance(self.board.getSpace(pos),Piece)
+    
     def addIfValid(self, mv: Move, moves: list[Move], allowCapture: bool = True) -> bool:
         """Apply restrictions on moves that are common to all pieces, including staying on the board, not moving through or onto a blocked space, and not moving into check""" # NEEDS UPDATING
         if self.inBounds(mv) and self.moveFree(mv, allowCapture): # and not self.inCheck(mv)
@@ -42,7 +46,7 @@ class Piece:
     def moveFree(self, mv: Move, allowCapture: bool) -> bool:
         """Return True if the last space in a move is empty or the opposite color, and all other spaces are empty"""
         for loc in mv.spaces[1:-1]: # check if all except first and last space are empty
-            if self.board.getSpace(loc) != None:
+            if not self.hasPiece(loc):
                 return False
         lastSpaceContent = self.board.getSpace(mv.endPos())
         captureAvailable = allowCapture and lastSpaceContent.color == ('black' if self.color == 'white' else 'white')
