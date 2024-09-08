@@ -39,13 +39,14 @@ class Piece:
         col = mv.endPos()[1]
         return row >= 0 and row <= 7 and col >= 0 and col <= 7
     
-    def moveFree(self, mv: Move) -> bool:
+    def moveFree(self, mv: Move, allowCapture: bool) -> bool:
         """Return True if the last space in a move is empty or the opposite color, and all other spaces are empty"""
         for loc in mv.spaces[1:-1]: # check if all except first and last space are empty
             if self.board.getSpace(loc) != None:
                 return False
         lastSpaceContent = self.board.getSpace(mv.endPos())
-        return lastSpaceContent == None or lastSpaceContent.color == ('black' if self.color == 'white' else 'white') # check if last space empty or free to be captured
+        captureAvailable = allowCapture and lastSpaceContent.color == ('black' if self.color == 'white' else 'white')
+        return lastSpaceContent == None or captureAvailable # check if last space empty or free to be captured
     
     def movesInLine(self, directions: list[tuple[int,int]], limitLength: bool = False) -> list[Move]:
         """Return list of all moves available in directions given as a list of tuples of length 2 with values of -1, 0, or 1"""
