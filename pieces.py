@@ -44,7 +44,7 @@ class Piece:
         return row >= 0 and row <= 7 and col >= 0 and col <= 7
     
     def moveFree(self, mv: Move, allowCapture: bool) -> bool:
-        """Return True if the last space in a move is empty or the opposite color, and all other spaces are empty"""
+        """Return True if the last space in a move is empty or has an piece available to capture, and all other spaces are empty"""
         for loc in mv.spaces[1:-1]: # check if all except first and last space are empty
             if not self.hasPiece(loc):
                 return False
