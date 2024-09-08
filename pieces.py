@@ -30,6 +30,10 @@ class Piece:
     def hasPiece(self, pos: tuple[int,int]) -> bool:
         return isinstance(self.board.getSpace(pos),Piece)
     
+    def isOppositeColor(self, pos: tuple[int,int]) -> bool:
+        opposite = 'black' if self.color == 'white' else 'white'
+        return self.isPiece(pos) and self.board.getSpace(pos).color == opposite
+    
     def addIfValid(self, mv: Move, moves: list[Move], allowCapture: bool = True) -> bool:
         """Apply restrictions on moves that are common to all pieces, including staying on the board, not moving through or onto a blocked space, and not moving into check""" # NEEDS UPDATING
         if self.inBounds(mv) and self.moveFree(mv, allowCapture): # and not self.inCheck(mv)
@@ -48,9 +52,9 @@ class Piece:
         for loc in mv.spaces[1:-1]: # check if all except first and last space are empty
             if not self.hasPiece(loc):
                 return False
-        lastSpaceContent = self.board.getSpace(mv.endPos())
-        captureAvailable = allowCapture and lastSpaceContent.color == ('black' if self.color == 'white' else 'white')
-        return lastSpaceContent == None or captureAvailable # check if last space empty or free to be captured
+        lastSpace = mv.endPos()
+        captureAvailable = allowCapture and self.isOppositeColor(lastSpace)
+        return (not self.isPiece(lastSpace)) or captureAvailable # check if last space empty or free to be captured
     
     def movesInLine(self, directions: list[tuple[int,int]], limitLength: bool = False) -> list[Move]:
         """Return list of all moves available in directions given as a list of tuples of length 2 with values of -1, 0, or 1"""
