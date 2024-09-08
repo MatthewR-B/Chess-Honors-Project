@@ -3,6 +3,7 @@ from pieces import *
 class Game:
     def __init__(self) -> None:
         self.board = [[None]*8 for i in range(8)]
+        self.moveHistory = []
         pieceList = [Rook,Knight,Bishop,Queen,King,Bishop,Knight,Rook]
         col = 0
         for piece in pieceList:
@@ -26,6 +27,7 @@ class Game:
         piece.pos = mv.endPos()
         self.setSpace(piece, mv.endPos())
         self.setSpace(None, mv.startPos())
+        self.moveHistory.append(mv)
         # CHECK FOR CASTLE TO MOVE ROOK
         # ADD MOVE LOGGING
 
