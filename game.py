@@ -1,4 +1,3 @@
-# mypy: disable-error-code="call-overload"
 from pieces import *
 class Game:
     def __init__(self) -> None:
