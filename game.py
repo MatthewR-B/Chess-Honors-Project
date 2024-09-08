@@ -20,13 +20,14 @@ class Game:
             boardStr += "\n"
         return boardStr
 
-    def move(self, pos1: tuple[int,int], pos2: tuple[int,int]) -> None: # CHANGE TO TAKE MOVE OBJECT AS INPUT
-        piece = self.getSpace(pos1)
+    def move(self, mv: Move) -> None:
+        piece = self.getSpace(mv.startPos())
         piece.hasMoved = True
-        piece.pos = pos2
-        self.setSpace(piece,pos2)
-        self.setSpace(None,pos1)
-        # Add move logging here
+        piece.pos = mv.endPos()
+        self.setSpace(piece, mv.endPos())
+        self.setSpace(None, mv.startPos())
+        # CHECK FOR CASTLE TO MOVE ROOK
+        # ADD MOVE LOGGING
 
     def getSpace(self, pos: tuple[int,int]) -> Piece | None:
         return self.board[pos[0]][pos[1]]
