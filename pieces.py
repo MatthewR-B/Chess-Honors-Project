@@ -13,7 +13,7 @@ class Move:
         return self.spaces[-1]
 
     def __str__(self) -> str:
-        return f"{self.startPos()} to {self.endPos()}{" castle" if self.castle else ""}"
+        return f"{self.startPos()} to {self.endPos()}" + (" castle" if self.castle else "")
 
 class Piece:
     """Parent class for all pieces, storing color, location, and whether the piece has moved yet"""
@@ -105,10 +105,9 @@ class Knight(Piece):
         moves = []
         row = self.pos[0]
         col = self.pos[1]
-        for dr in (-2,-1,1,2):
-            for dc in (-2,-1,1,2):
-                candidate = Move((row,col),(row+dr,col+dc))
-                if self.isValid(candidate): moves.append(candidate)
+        for dr, dc in ((-2,1),(-2,-1),(2,1),(2,-1),(-1,2),(-1,-2),(1,2),(1,-2)):
+            candidate = Move(((row,col),(row+dr,col+dc)))
+            if self.isValid(candidate): moves.append(candidate)
         return moves
     
     def __str__(self) -> str:
