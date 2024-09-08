@@ -1,8 +1,9 @@
 class Move:
     """Represents the potential movement of a piece from one space to another, storing the coordinates of all spaces through which the piece must travel"""
-    def __init__(self, spaces: list[tuple[int,int]], castle: bool = False) -> None:
+    def __init__(self, spaces: list[tuple[int,int]], castle: bool = False, doublePawn: bool = False) -> None:
         self.spaces = spaces
         self.castle = castle
+        self.doublePawn = doublePawn
 
     def startPos(self) -> tuple[int,int]:
         """Get first space in move"""
