@@ -54,7 +54,7 @@ class Piece:
             if dr != 0 or dc != 0:
                 row = self.pos[0]
                 col = self.pos[1]
-                currentMove = [(row,col)]
+                currentMove = [self.pos]
                 while True:
                     row += dr
                     col += dc
@@ -105,7 +105,7 @@ class Knight(Piece):
         row = self.pos[0]
         col = self.pos[1]
         for dr, dc in ((-2,1),(-2,-1),(2,1),(2,-1),(-1,2),(-1,-2),(1,2),(1,-2)):
-            candidate = Move(((row,col),(row+dr,col+dc)))
+            candidate = Move([self.pos,(row+dr,col+dc)])
             self.addIfValid(candidate,moves)
         return moves
     
