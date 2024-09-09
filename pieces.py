@@ -1,6 +1,6 @@
 class Move:
     """Represents the potential movement of a piece from one space to another, storing the coordinates of all spaces through which the piece must travel"""
-    def __init__(self, spaces: list[tuple[int,int]], castle: bool = False, doublePawn: str = "") -> None:
+    def __init__(self, spaces: list[tuple[int,int]], castle: str = "", doublePawn: str = "") -> None:
         self.spaces = spaces
         self.castle = castle
         self.doublePawn = doublePawn
@@ -14,7 +14,7 @@ class Move:
         return self.spaces[-1]
 
     def __str__(self) -> str:
-        return f"{self.startPos()} to {self.endPos()}" + (" castle" if self.castle else "")
+        return f"{self.startPos()} to {self.endPos()} {self.castle}"
 
 class Piece:
     """Parent class for all pieces, storing color, location, and whether the piece has moved yet"""
@@ -86,10 +86,10 @@ class King(Piece):
             leftCorner = self.board.getSpace((row,0))
             rightCorner = self.board.getSpace((row,7))
             if isinstance(leftCorner,Rook) and not leftCorner.hasMoved: # queenside castle
-                queenside = Move([(row,4),(row,3),(row,1),(row,2)], castle = True) # include (row,1) to ensure that all spaces between the rook and king are empty, even if not passed through by King
+                queenside = Move([(row,4),(row,3),(row,1),(row,2)], castle = "queenside") # include (row,1) to ensure that all spaces between the rook and king are empty, even if not passed through by King
                 self.addIfValid(queenside,moves)
             if isinstance(rightCorner,Rook) and not rightCorner.hasMoved: # kingside castle
-                kingside = Move([(row,4),(row,5),(row,6)], castle = True)
+                kingside = Move([(row,4),(row,5),(row,6)], castle = "kingside")
                 self.addIfValid(kingside,moves)
         return moves
 
