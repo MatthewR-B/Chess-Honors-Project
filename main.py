@@ -6,6 +6,7 @@ SCREENWIDTH = 720
 SCREENHEIGHT = 720
 COLORLIGHT = (255,255,255)
 COLORDARK = (0,170,255)
+DARKERMODIFIER = 60
 
 pg.init()
 screen = pg.display.set_mode((SCREENWIDTH,SCREENHEIGHT))
@@ -29,6 +30,13 @@ def click(pos: tuple[int,int]) -> None:
         if piece != None: # MOVE HASPIECE FROM PIECE TO GAME
             visibleMoves = piece.getMoves()
 
+def darker(color: tuple[int,int,int]) -> tuple[int,int,int]:
+    """Return a tuple representing a color slightly darker than the argument"""
+    newColor = []
+    for val in color:
+        newColor.append(val - DARKERMODIFIER if val >= DARKERMODIFIER else 0)
+    return tuple(newColor)
+
 while running:
     for event in pg.event.get():
         if event.type == pg.QUIT: # close window
@@ -45,6 +53,10 @@ while running:
     for row in range(8):
         for col in range(8):
             color = COLORLIGHT if (row + col) % 2 == 0 else COLORDARK
+            for mv in visibleMoves: # darken color to highlight
+                if mv.endPos() == (row,col):
+                    color = darker(color)
+                    break
             tiles[row][col] = pg.Rect(col*sideLength,row*sideLength,sideLength,sideLength)
             pg.draw.rect(screen,color,tiles[row][col]) # draw tile
             piece = g.getSpace((row,col))
