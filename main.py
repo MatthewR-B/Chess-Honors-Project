@@ -14,11 +14,32 @@ clock = pg.time.Clock()
 running = True
 tiles = [[None]*8 for i in range(8)]
 
+visibleMoves = []
+
+def click(pos: tuple[int,int]) -> None:
+    """If a piece is already selected, execute the move that ends in the clicked space or deselect if another space is clicked. If a piece is not selected, highlight the moves of the clicked piece."""
+    global visibleMoves
+    if len(visibleMoves) > 0:
+        for mv in visibleMoves:
+            if mv.endPos() == pos:
+                g.move(mv)
+        visibleMoves.clear()
+    else:
+        piece = g.getSpace((row,col))
+        if piece != None: # MOVE HASPIECE FROM PIECE TO GAME
+            visibleMoves = piece.getMoves()
+
 while running:
     for event in pg.event.get():
-        if event.type == pg.QUIT:
+        if event.type == pg.QUIT: # close window
             running = False
-    
+        if event.type == pg.MOUSEBUTTONUP: # click detection
+            pos = pg.mouse.get_pos()
+            for row in range(8):
+                for col in range(8):
+                    if tiles[row][col].collidepoint(pos):
+                        click((row,col))
+                        
     # render board
     sideLength = int(SCREENHEIGHT/8)
     for row in range(8):
