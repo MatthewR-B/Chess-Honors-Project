@@ -29,7 +29,7 @@ class Piece:
         self.hasMoved = False
 
     def hasPiece(self, pos: tuple[int,int]) -> bool:
-        return isinstance(self.board.getSpace(pos),Piece)
+        return self.inBounds(Move([pos])) and isinstance(self.board.getSpace(pos),Piece)
     
     def isOppositeColor(self, pos: tuple[int,int]) -> bool:
         return self.hasPiece(pos) and self.board.getSpace(pos).color == self.oppositeColor()
