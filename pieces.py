@@ -53,11 +53,11 @@ class Piece:
     def moveFree(self, mv: Move, allowCapture: bool) -> bool:
         """Return True if the last space in a move is empty or has an piece available to capture, and all other spaces are empty"""
         for loc in mv.spaces[1:-1]: # check if all except first and last space are empty
-            if not self.hasPiece(loc):
+            if self.hasPiece(loc):
                 return False
         lastSpace = mv.endPos()
         captureAvailable = allowCapture and self.isOppositeColor(lastSpace)
-        return (not self.isPiece(lastSpace)) or captureAvailable # check if last space empty or free to be captured
+        return (not self.hasPiece(lastSpace)) or captureAvailable # check if last space empty or free to be captured
     
     def movesInLine(self, directions: list[tuple[int,int]], limitLength: bool = False) -> list[Move]:
         """Return list of all moves available in directions given as a list of tuples of length 2 with values of -1, 0, or 1"""
