@@ -26,6 +26,7 @@ class Game:
         piece.pos = mv.endPos()
         self.setSpace(piece, mv.endPos())
         self.setSpace(None, mv.startPos())
+        
         if (mv.castle != ""): # move rook if castle
             row = 7 if piece.color == "white" else 0
             oldCol,newCol = (7,5) if mv.castle == "kingside" else (0,3)
@@ -34,6 +35,11 @@ class Game:
             rook.pos = (row,newCol)
             self.setSpace(rook,(row,newCol))
             self.setSpace(None,(row,oldCol))
+        
+        oppRow = 0 if piece.color == "white" else 7
+        if isinstance(piece,Pawn) and mv.endPos()[0] == oppRow: # pawn promotion GIVE OPTION FOR UNDERPROMOTION
+            self.setSpace(Queen(self,piece.color,mv.endPos()), mv.endPos())
+
         self.moveHistory.append(mv)
         # ADD MOVE LOGGING
 
