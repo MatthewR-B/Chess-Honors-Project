@@ -32,9 +32,11 @@ class Piece:
         return isinstance(self.board.getSpace(pos),Piece)
     
     def isOppositeColor(self, pos: tuple[int,int]) -> bool:
-        opposite = 'black' if self.color == 'white' else 'white'
-        return self.isPiece(pos) and self.board.getSpace(pos).color == opposite
+        return self.hasPiece(pos) and self.board.getSpace(pos).color == self.oppositeColor()
     
+    def oppositeColor(self):
+        return "black" if self.color == "white" else "white"
+
     def addIfValid(self, mv: Move, moves: list[Move], allowCapture: bool = True) -> bool:
         """Apply restrictions on moves that are common to all pieces, including staying on the board, not moving through or onto a blocked space, and not moving into check""" # NEEDS UPDATING
         if self.inBounds(mv) and self.moveFree(mv, allowCapture): # and not self.inCheck(mv)
