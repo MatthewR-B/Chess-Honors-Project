@@ -26,8 +26,15 @@ class Game:
         piece.pos = mv.endPos()
         self.setSpace(piece, mv.endPos())
         self.setSpace(None, mv.startPos())
+        if (mv.castle != ""): # move rook if castle
+            row = 7 if piece.color == "white" else 0
+            oldCol,newCol = (7,5) if mv.castle == "kingside" else (0,3)
+            rook = self.getSpace((row,oldCol))
+            rook.hasMoved = True
+            rook.pos = (row,newCol)
+            self.setSpace(rook,(row,newCol))
+            self.setSpace(None,(row,oldCol))
         self.moveHistory.append(mv)
-        # CHECK FOR CASTLE TO MOVE ROOK
         # ADD MOVE LOGGING
 
     def getSpace(self, pos: tuple[int,int]) -> Piece | None:
