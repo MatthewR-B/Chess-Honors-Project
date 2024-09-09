@@ -61,18 +61,17 @@ class Piece:
         """Return list of all moves available in directions given as a list of tuples of length 2 with values of -1, 0, or 1"""
         moves = []
         for dr, dc in directions:
-            if dr != 0 or dc != 0:
-                row = self.pos[0]
-                col = self.pos[1]
-                currentMove = [self.pos]
-                while True:
-                    row += dr
-                    col += dc
-                    currentMove.append((row,col))
-                    if self.addIfValid(Move(currentMove.copy()),moves) == False:
-                        break
-                    if limitLength: # limit move to one space in every direction in case of King
-                        break
+            row = self.pos[0]
+            col = self.pos[1]
+            currentMove = [self.pos]
+            while True:
+                row += dr
+                col += dc
+                currentMove.append((row,col))
+                if self.addIfValid(Move(currentMove.copy()),moves) == False:
+                    break
+                if limitLength: # limit move to one space in every direction in case of King
+                    break
         return moves
         
 
