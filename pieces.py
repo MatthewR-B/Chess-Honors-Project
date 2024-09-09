@@ -1,6 +1,6 @@
 class Move:
     """Represents the potential movement of a piece from one space to another, storing the coordinates of all spaces through which the piece must travel"""
-    def __init__(self, spaces: list[tuple[int,int]], castle: bool = False, doublePawn: bool = False) -> None:
+    def __init__(self, spaces: list[tuple[int,int]], castle: bool = False, doublePawn: str = "") -> None:
         self.spaces = spaces
         self.castle = castle
         self.doublePawn = doublePawn
@@ -156,8 +156,11 @@ class Pawn(Piece):
         return moves
     
     def enPassant(self, pos: tuple[int,int]) -> bool:
-        lastMove = self.board.moveHistory[-1]
-        return lastMove.doublePawn and lastMove.spaces[1] == pos
+        history = self.board.moveHistory
+        if len(history) == 0:
+            return False
+        lastMove = history[-1]
+        return lastMove.doublePawn == self.oppositeColor() and lastMove.spaces[1] == pos
 
     def __str__(self) -> str:
         return 'P' if self.color == 'white' else 'p'
