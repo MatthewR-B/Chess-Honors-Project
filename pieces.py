@@ -136,19 +136,24 @@ class Pawn(Piece):
         row = self.pos[0]
         col = self.pos[1]
         dr = -1 if self.color == 'white' else 1
+
         candidate = Move([self.pos, (row + dr, col)]) # single move
         self.addIfValid(candidate, moves, allowCapture = False)
+
         if not self.hasMoved: # double move
-            candidate = Move([self.pos, (row + dr, col), (row + 2 * dr, col)], doublePawn = True)
+            candidate = Move([self.pos, (row + dr, col), (row + 2 * dr, col)], doublePawn = self.color)
             self.addIfValid(candidate, moves, allowCapture = False)
+
         endPos = (row + dr, col + 1)
         if self.hasPiece(endPos) or self.enPassant(endPos): # capture to right diagonal
             candidate = Move([self.pos, endPos])
             self.addIfValid(candidate,moves)
+
         endPos = (row + dr, col - 1)
         if self.hasPiece(endPos) or self.enPassant(endPos): # capture to left diagonal
             candidate = Move([self.pos, endPos])
             self.addIfValid(candidate, moves)
+        
         return moves
     
     def enPassant(self, pos: tuple[int,int]) -> bool:
