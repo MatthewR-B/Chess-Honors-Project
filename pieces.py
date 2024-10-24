@@ -86,9 +86,11 @@ class Piece:
                 if limitLength: # limit move to one space in every direction in case of King
                     break
         return moves
+    
+    def __repr__(self) -> str:
+        """Return string representation of Piece for debugging"""
+        return f"{type(self).__name__}({self.color}, {self.pos}, {self.hasMoved})"
         
-
-
 class King(Piece):
     def getMoves(self) -> list[Move]:
         """Return list of available Moves"""
