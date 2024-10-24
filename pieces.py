@@ -1,19 +1,26 @@
+from typing import TypeAlias, TYPE_CHECKING
+if TYPE_CHECKING:
+    from game import Game
+
+Coordinate: TypeAlias = tuple[int,int]
+
 class Move:
     """Represents the potential movement of a piece from one space to another, storing the coordinates of all spaces through which the piece must travel"""
-    def __init__(self, spaces: list[tuple[int,int]], castle: str = "", doublePawn: str = "") -> None:
+    def __init__(self, spaces: list[Coordinate], castle: str = "", doublePawn: str = "") -> None:
         self.spaces = spaces
         self.castle = castle
         self.doublePawn = doublePawn
 
-    def startPos(self) -> tuple[int,int]:
+    def startPos(self) -> Coordinate:
         """Get first space in move"""
         return self.spaces[0]
     
-    def endPos(self) -> tuple[int,int]:
+    def endPos(self) -> Coordinate:
         """Get final space in move"""
         return self.spaces[-1]
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
+        """Return string representation of Move"""
         return f"{self.startPos()} to {self.endPos()} {self.castle}"
 
 class Piece:
@@ -22,19 +29,23 @@ class Piece:
     diagonalDirections = ((1,1),(1,-1),(-1,-1),(-1,1))
     allDirecitons = cardinalDirections + diagonalDirections
 
-    def __init__(self, board, color: str, pos: tuple[int,int]) -> None:
+    def __init__(self, board: "Game", color: str, pos: Coordinate) -> None:
+        """Initialize Piece with the board, color, and position"""
         self.board = board
         self.color = color
         self.pos = pos
         self.hasMoved = False
 
-    def hasPiece(self, pos: tuple[int,int]) -> bool:
+    def hasPiece(self, pos: Coordinate) -> bool:
+        """Return True if there is a piece at pos"""
         return self.inBounds(Move([pos])) and isinstance(self.board.getSpace(pos),Piece)
     
-    def isOppositeColor(self, pos: tuple[int,int]) -> bool:
+    def isOppositeColor(self, pos: Coordinate) -> bool:
+        """Return True if there is a piece of the opposite color at pos"""
         return self.hasPiece(pos) and self.board.getSpace(pos).color == self.oppositeColor()
     
     def oppositeColor(self):
+        """Return the color that is not this piece's color"""
         return "black" if self.color == "white" else "white"
 
     def addIfValid(self, mv: Move, moves: list[Move], allowCapture: bool = True) -> bool:
@@ -50,7 +61,7 @@ class Piece:
         col = mv.endPos()[1]
         return row >= 0 and row <= 7 and col >= 0 and col <= 7
     
-    def moveFree(self, mv: Move, allowCapture: bool) -> bool:
+    def moveFree(self, mv: Move, allowCapture: bool) -> bool: # MOVE TO MOVE CLASS?
         """Return True if the last space in a move is empty or has an piece available to capture, and all other spaces are empty"""
         for loc in mv.spaces[1:-1]: # check if all except first and last space are empty
             if self.hasPiece(loc):
@@ -59,9 +70,9 @@ class Piece:
         captureAvailable = allowCapture and self.isOppositeColor(lastSpace)
         return (not self.hasPiece(lastSpace)) or captureAvailable # check if last space empty or free to be captured
     
-    def movesInLine(self, directions: list[tuple[int,int]], limitLength: bool = False) -> list[Move]:
+    def movesInLine(self, directions: tuple[Coordinate], limitLength: bool = False) -> list[Move]:
         """Return list of all moves available in directions given as a list of tuples of length 2 with values of -1, 0, or 1"""
-        moves = []
+        moves: list[Move] = []
         for dr, dc in directions:
             row = self.pos[0]
             col = self.pos[1]
@@ -80,6 +91,7 @@ class Piece:
 
 class King(Piece):
     def getMoves(self) -> list[Move]:
+        """Return list of available Moves"""
         moves = self.movesInLine(self.allDirecitons,limitLength=True)
         if not self.hasMoved: # add castling moves
             row = self.pos[0]
@@ -98,20 +110,25 @@ class King(Piece):
     
 class Queen(Piece):
     def getMoves(self) -> list[Move]:
+        """Return list of available Moves"""
         return self.movesInLine(self.allDirecitons)
             
     def __str__(self) -> str:
+        """Return string representation of Queen for text board"""
         return 'Q' if self.color == 'white' else 'q'
     
 class Bishop(Piece):
     def getMoves(self) -> list[Move]:
+        """Return list of available Moves"""
         return self.movesInLine(self.diagonalDirections)
     
     def __str__(self) -> str:
+        """Return string representation of Bishop for text board"""
         return 'B' if self.color == 'white' else 'b'
     
 class Knight(Piece):
     def getMoves(self) -> list[Move]:
+        """Return list of available Moves"""
         moves = []
         row = self.pos[0]
         col = self.pos[1]
@@ -121,19 +138,22 @@ class Knight(Piece):
         return moves
     
     def __str__(self) -> str:
+        """Return string representation of King for text board"""
         return 'N' if self.color == 'white' else 'n'
     
 class Rook(Piece):
     def getMoves(self) -> list[Move]:
+        """Return list of available Moves"""
         return self.movesInLine(self.cardinalDirections)
     
     def __str__(self) -> str:
+        """Return string representation of Rook for text board"""
         return 'R' if self.color == 'white' else 'r'
     
 class Pawn(Piece):
-
     def getMoves(self) -> list[Move]:
-        moves = []
+        """Return list of available Moves"""
+        moves: list[Move] = []
         row = self.pos[0]
         col = self.pos[1]
         dr = -1 if self.color == 'white' else 1
@@ -157,7 +177,8 @@ class Pawn(Piece):
         
         return moves
     
-    def enPassant(self, pos: tuple[int,int]) -> bool:
+    def enPassant(self, pos: Coordinate) -> bool:
+        """Return True if moving to pos is a valid move by en passant"""
         history = self.board.moveHistory
         if len(history) == 0:
             return False
@@ -165,4 +186,5 @@ class Pawn(Piece):
         return lastMove.doublePawn == self.oppositeColor() and lastMove.spaces[1] == pos
 
     def __str__(self) -> str:
+        """Return string representation of Pawn for text board"""
         return 'P' if self.color == 'white' else 'p'

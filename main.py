@@ -1,6 +1,7 @@
 # template from https://www.pg.org/docs/
 import pygame as pg
-from game import *
+from game import Game, Move
+from typing import Optional
 
 SCREENWIDTH = 720
 SCREENHEIGHT = 720
@@ -15,10 +16,10 @@ clock = pg.time.Clock()
 running = True
 tiles = [[None]*8 for i in range(8)]
 
-visibleMoves = []
+visibleMoves: list[Move] = []
 
 def click(pos: tuple[int,int]) -> None:
-    """If a piece is already selected, execute the move that ends in the clicked space or deselect if another space is clicked. If a piece is not selected, highlight the moves of the clicked piece."""
+    """If a piece is already selected, execute the move that ends in the clicked space or deselect if another space is clicked. If a piece is not selected, highlight the moves of the clicked piece if the color matches the turn."""
     global visibleMoves
     if len(visibleMoves) > 0:
         for mv in visibleMoves:
@@ -27,7 +28,7 @@ def click(pos: tuple[int,int]) -> None:
         visibleMoves.clear()
     else:
         piece = g.getSpace((row,col))
-        if piece != None: # MOVE HASPIECE FROM PIECE TO GAME
+        if piece != None:
             visibleMoves = piece.getMoves()
 
 def darker(color: tuple[int,int,int]) -> tuple[int,int,int]:

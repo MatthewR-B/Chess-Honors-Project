@@ -1,6 +1,8 @@
 from pieces import *
+from typing import Optional
+
 class Game:
-    def __init__(self) -> None:
+        """Initialize board and populate with starting pieces"""
         self.board = [[None]*8 for i in range(8)]
         self.moveHistory = []
         pieceList = [Rook,Knight,Bishop,Queen,King,Bishop,Knight,Rook]
@@ -43,8 +45,10 @@ class Game:
         self.moveHistory.append(mv)
         # ADD MOVE LOGGING
 
-    def getSpace(self, pos: tuple[int,int]) -> Piece | None:
+    def getSpace(self, pos: Coordinate) -> Optional[Piece]:
+        """Return contents of space at pos"""
         return self.board[pos[0]][pos[1]]
 
-    def setSpace(self, content: Piece | None, pos: tuple[int,int]) -> None:
+    def setSpace(self, content: Optional[Piece], pos: Coordinate) -> None:
+        """Set contents of space at pos to content"""
         self.board[pos[0]][pos[1]] = content
