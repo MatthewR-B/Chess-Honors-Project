@@ -44,3 +44,10 @@ class Game:
     def setSpace(self, content: Optional[Piece], pos: Coordinate) -> None:
         """Set contents of space at pos to content"""
         self.board[pos[0]][pos[1]] = content
+    
+    def printBoard(self) -> None:
+        """Print text representation of the board"""
+        for row in self.board:
+            for piece in row:
+                print('-' if piece == None else str(piece), end = " ")
+            print()
