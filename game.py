@@ -1,11 +1,11 @@
-from pieces import *
+from pieces import Move, Piece, King, Queen, Bishop, Knight, Rook, Pawn, Coordinate
 from typing import Optional
 
 class Game:
     def __init__(self, populate: bool = True) -> None:
         """Initialize board and populate with starting pieces"""
-        self.board = [[None]*8 for i in range(8)]
-        self.moveHistory = []
+        self.board: list[list[Optional[Piece]]] = [[None]*8 for i in range(8)]
+        self.moveHistory: list[Move] = []
         if populate:
             pieceList = [Rook,Knight,Bishop,Queen,King,Bishop,Knight,Rook]
             for col in range(8):
@@ -16,6 +16,8 @@ class Game:
 
     def move(self, mv: Move) -> None:
         piece = self.getSpace(mv.startPos())
+        if piece is None:
+            raise RuntimeError("Tried to move from empty space")
         piece.hasMoved = True
         piece.pos = mv.endPos()
         self.setSpace(piece, mv.endPos())
@@ -25,6 +27,8 @@ class Game:
             row = 7 if piece.color == "white" else 0
             oldCol,newCol = (7,5) if mv.castle == "kingside" else (0,3)
             rook = self.getSpace((row,oldCol))
+            if rook is None: # to make mypy happy. rook should never be None
+                raise RuntimeError("Rook not found for castle")
             rook.hasMoved = True
             rook.pos = (row,newCol)
             self.setSpace(rook,(row,newCol))

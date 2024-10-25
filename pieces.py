@@ -1,4 +1,5 @@
 from typing import TypeAlias, TYPE_CHECKING
+
 if TYPE_CHECKING:
     from game import Game
 
@@ -61,7 +62,7 @@ class Piece:
         col = mv.endPos()[1]
         return row >= 0 and row <= 7 and col >= 0 and col <= 7
     
-    def moveFree(self, mv: Move, allowCapture: bool) -> bool: # MOVE TO MOVE CLASS?
+    def moveFree(self, mv: Move, allowCapture: bool) -> bool:
         """Return True if the last space in a move is empty or has an piece available to capture, and all other spaces are empty"""
         for loc in mv.spaces[1:-1]: # check if all except first and last space are empty
             if self.hasPiece(loc):
@@ -70,7 +71,7 @@ class Piece:
         captureAvailable = allowCapture and self.isOppositeColor(lastSpace)
         return (not self.hasPiece(lastSpace)) or captureAvailable # check if last space empty or free to be captured
     
-    def movesInLine(self, directions: tuple[Coordinate], limitLength: bool = False) -> list[Move]:
+    def movesInLine(self, directions: tuple[Coordinate, ...], limitLength: bool = False) -> list[Move]:
         """Return list of all moves available in directions given as a list of tuples of length 2 with values of -1, 0, or 1"""
         moves: list[Move] = []
         for dr, dc in directions:
@@ -86,6 +87,10 @@ class Piece:
                 if limitLength: # limit move to one space in every direction in case of King
                     break
         return moves
+    
+    def getMoves(self) -> list[Move]:
+        """Call getMoves in Piece subclass instead"""
+        raise NotImplementedError
     
     def __repr__(self) -> str:
         """Return string representation of Piece for debugging"""
@@ -131,7 +136,7 @@ class Bishop(Piece):
 class Knight(Piece):
     def getMoves(self) -> list[Move]:
         """Return list of available Moves"""
-        moves = []
+        moves: list[Move] = []
         row = self.pos[0]
         col = self.pos[1]
         for dr, dc in ((-2,1),(-2,-1),(2,1),(2,-1),(-1,2),(-1,-2),(1,2),(1,-2)):
