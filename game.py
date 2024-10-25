@@ -6,6 +6,8 @@ class Game:
         """Initialize board and populate with starting pieces"""
         self.board: list[list[Optional[Piece]]] = [[None]*8 for i in range(8)]
         self.moveHistory: list[Move] = []
+        self.visibleMoves: list[Move] = []
+        self.turn = "white"
         if populate:
             pieceList = [Rook,Knight,Bishop,Queen,King,Bishop,Knight,Rook]
             for col in range(8):
@@ -50,15 +52,17 @@ class Game:
 
         self.turn = "black" if self.turn == "white" else "white"
         self.moveHistory.append(mv)
-        # ADD MOVE LOGGING
-
-    def getSpace(self, pos: Coordinate) -> Optional[Piece]:
-        """Return contents of space at pos"""
-        return self.board[pos[0]][pos[1]]
-
-    def setSpace(self, content: Optional[Piece], pos: Coordinate) -> None:
-        """Set contents of space at pos to content"""
-        self.board[pos[0]][pos[1]] = content
+    def click(self, pos: Coordinate) -> None:
+        """If a piece is already selected, execute the move that ends in the clicked space or deselect if another space is clicked. If a piece is not selected, highlight the moves of the clicked piece if the color matches the turn."""
+        if len(self.visibleMoves) > 0:
+            for mv in self.visibleMoves:
+                if mv.endPos() == pos:
+                    self.move(mv)
+            self.visibleMoves.clear()
+        else:
+            content = self.getSpace(pos)
+            if isinstance(content, Piece) and content.color == self.turn:
+                self.visibleMoves.extend(content.getMoves())
     
     def printBoard(self) -> None:
         """Print text representation of the board"""

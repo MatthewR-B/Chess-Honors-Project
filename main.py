@@ -1,8 +1,6 @@
 # template from https://www.pg.org/docs/
 import pygame as pg
 from game import Game
-from pieces import Move, Piece
-from typing import Optional
 
 SCREENWIDTH = 720
 SCREENHEIGHT = 720
@@ -18,21 +16,6 @@ screen = pg.display.set_mode((SCREENWIDTH,SCREENHEIGHT))
 g = Game()
 clock = pg.time.Clock()
 running = True
-
-visibleMoves: list[Move] = []
-
-def click(pos: tuple[int,int]) -> None: # move to Game
-    """If a piece is already selected, execute the move that ends in the clicked space or deselect if another space is clicked. If a piece is not selected, highlight the moves of the clicked piece if the color matches the turn."""
-    global visibleMoves
-    if len(visibleMoves) > 0:
-        for mv in visibleMoves:
-            if mv.endPos() == pos:
-                g.move(mv)
-        visibleMoves.clear()
-    else:
-        piece = g.getSpace((row,col))
-        if piece is not None:
-            visibleMoves = piece.getMoves()
 
 def darker(color: tuple[int, ...]) -> tuple[int, ...]:
     """Return a tuple representing a color slightly darker than the argument"""
@@ -50,13 +33,13 @@ while running:
             for row in range(8):
                 for col in range(8):
                     if tiles[row][col].collidepoint(pos):
-                        click((row,col))
+                        g.click((row,col))
                         
     # render board
     for row in range(8):
         for col in range(8):
             color: tuple[int, ...] = COLORLIGHT if (row + col) % 2 == 0 else COLORDARK
-            for mv in visibleMoves: # darken color to highlight
+            for mv in g.visibleMoves: # darken color to highlight
                 if mv.endPos() == (row,col):
                     color = darker(color)
                     break
