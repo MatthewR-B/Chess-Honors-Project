@@ -39,11 +39,7 @@ class Piece:
 
     def hasPiece(self, pos: Coordinate) -> bool:
         """Return True if there is a piece at pos"""
-        return self.inBounds(Move([pos])) and isinstance(self.board.getSpace(pos),Piece)
-    
-    def isOppositeColor(self, pos: Coordinate) -> bool:
-        """Return True if there is a piece of the opposite color at pos"""
-        return self.hasPiece(pos) and self.board.getSpace(pos).color == self.oppositeColor()
+        return self.board.getSpace(pos) is not None # removed 'self.inBounds(Move([pos])) and'
     
     def oppositeColor(self):
         """Return the color that is not this piece's color"""
@@ -67,9 +63,8 @@ class Piece:
         for loc in mv.spaces[1:-1]: # check if all except first and last space are empty
             if self.hasPiece(loc):
                 return False
-        lastSpace = mv.endPos()
-        captureAvailable = allowCapture and self.isOppositeColor(lastSpace)
-        return (not self.hasPiece(lastSpace)) or captureAvailable # check if last space empty or free to be captured
+        lastSpace = self.board.getSpace(mv.endPos())
+        return lastSpace is None or (allowCapture and lastSpace.color == self.oppositeColor())
     
     def movesInLine(self, directions: tuple[Coordinate, ...], limitLength: bool = False) -> list[Move]:
         """Return list of all moves available in directions given as a list of tuples of length 2 with values of -1, 0, or 1"""
