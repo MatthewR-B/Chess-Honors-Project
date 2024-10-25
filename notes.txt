@@ -1,0 +1,2 @@
+Started to implement moves() checking, realized need to check for spaces that are blocked on the entire path of the move. Need to create Move
+Had issues with mypy type checking, like getSpace returning Optional[Piece], then calling Piece methods and it not liking that None does not have those methods. Had to modify to check if None
