@@ -7,12 +7,11 @@ Coordinate: TypeAlias = tuple[int,int]
 
 class Move:
     """Represents the potential movement of a piece from one space to another, storing the coordinates of all spaces through which the piece must travel"""
-    def __init__(self, spaces: list[Coordinate], castle: str = "", doublePawn: str = "") -> None:
+    def __init__(self, spaces: list[Coordinate], castle: str = "", doublePawn: str = "", enPassant: bool = False) -> None: # CONSIDER CHANGING CASTLE TO BOOL AND USE ENDPOS TO DETERMINE SIDE. Also store color separately and doublePawn as bool?
         self.spaces = spaces
         self.castle = castle # kingside, queenside, or empty
         self.doublePawn = doublePawn # white, black, or empty
-        self.castle = castle
-        self.doublePawn = doublePawn
+        self.enPassant = enPassant # True or False
 
     def startPos(self) -> Coordinate:
         """Get first space in move"""
@@ -24,7 +23,10 @@ class Move:
 
     def __repr__(self) -> str:
         """Return string representation of Move"""
-        return f"{self.startPos()} to {self.endPos()} {self.castle}"
+        c = f', castle={self.castle}' if self.castle != '' else ''
+        d = f', doublePawn={self.doublePawn}' if self.doublePawn != '' else ''
+        e = f', enPassant=True' if self.enPassant else ''
+        return f"Move({self.startPos()} to {self.endPos()}{c}{d}{e})"
 
 class Piece:
     """Parent class for all pieces, storing color, location, and whether the piece has moved yet"""

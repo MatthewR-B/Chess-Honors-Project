@@ -41,10 +41,14 @@ class Game:
             self.setSpace(rook,(row,newCol))
             self.setSpace(None,(row,oldCol))
         
+        if mv.enPassant: # remove pawn if en passant
+            self.setSpace(None, self.moveHistory[-1].endPos())
+
         oppRow = 0 if piece.color == "white" else 7
         if isinstance(piece,Pawn) and mv.endPos()[0] == oppRow: # pawn promotion GIVE OPTION FOR UNDERPROMOTION
             self.setSpace(Queen(self,piece.color,mv.endPos()), mv.endPos())
 
+        self.turn = "black" if self.turn == "white" else "white"
         self.moveHistory.append(mv)
         # ADD MOVE LOGGING
 
