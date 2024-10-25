@@ -14,7 +14,15 @@ class Game:
                 self.setSpace(Pawn(self,'white',(6,col)), (6,col))
                 self.setSpace(pieceList[col](self,'white',(7,col)), (7,col))
 
-    def move(self, mv: Move) -> None:
+    def getSpace(self, pos: Coordinate) -> Optional[Piece]:
+        """Return contents of space at pos"""
+        return self.board[pos[0]][pos[1]]
+
+    def setSpace(self, content: Optional[Piece], pos: Coordinate) -> None: # IF PIECE, DEFAULT TO POS OF PIECE?
+        """Set contents of space at pos to content"""
+        self.board[pos[0]][pos[1]] = content
+
+        """Execute Move mv"""
         piece = self.getSpace(mv.startPos())
         if piece is None:
             raise RuntimeError("Tried to move from empty space")
@@ -23,12 +31,11 @@ class Game:
         self.setSpace(piece, mv.endPos())
         self.setSpace(None, mv.startPos())
         
-        if (mv.castle != ""): # move rook if castle
+        if mv.castle != "": # move rook if castle
             row = 7 if piece.color == "white" else 0
             oldCol,newCol = (7,5) if mv.castle == "kingside" else (0,3)
             rook = self.getSpace((row,oldCol))
-            if rook is None: # to make mypy happy. rook should never be None
-                raise RuntimeError("Rook not found for castle")
+            assert rook is not None # to make mypy happy. rook should never be None
             rook.hasMoved = True
             rook.pos = (row,newCol)
             self.setSpace(rook,(row,newCol))
@@ -55,3 +62,4 @@ class Game:
             for piece in row:
                 print('-' if piece == None else str(piece), end = " ")
             print()
+        print()

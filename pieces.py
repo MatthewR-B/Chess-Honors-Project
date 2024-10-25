@@ -9,6 +9,8 @@ class Move:
     """Represents the potential movement of a piece from one space to another, storing the coordinates of all spaces through which the piece must travel"""
     def __init__(self, spaces: list[Coordinate], castle: str = "", doublePawn: str = "") -> None:
         self.spaces = spaces
+        self.castle = castle # kingside, queenside, or empty
+        self.doublePawn = doublePawn # white, black, or empty
         self.castle = castle
         self.doublePawn = doublePawn
 
@@ -30,7 +32,7 @@ class Piece:
     diagonalDirections = ((1,1),(1,-1),(-1,-1),(-1,1))
     allDirecitons = cardinalDirections + diagonalDirections
 
-    def __init__(self, board: "Game", color: str, pos: Coordinate) -> None:
+    def __init__(self, board: "Game", color: str, pos: Coordinate) -> None: # CALL setSpace() IN CONSTRUCTOR
         """Initialize Piece with the board, color, and position"""
         self.board = board
         self.color = color
@@ -39,7 +41,7 @@ class Piece:
 
     def hasPiece(self, pos: Coordinate) -> bool:
         """Return True if there is a piece at pos"""
-        return self.board.getSpace(pos) is not None # removed 'self.inBounds(Move([pos])) and'
+        return self.inBounds(Move([pos])) and self.board.getSpace(pos) is not None
     
     def oppositeColor(self):
         """Return the color that is not this piece's color"""
