@@ -49,11 +49,12 @@ class Piece:
         """Return the color that is not this piece's color"""
         return "black" if self.color == "white" else "white"
 
-    def addIfValid(self, mv: Move, moves: list[Move], allowCapture: bool = True) -> bool:
-        """Apply restrictions on moves that are common to all pieces, including staying on the board, not moving through or onto a blocked space, and not moving into check""" # NEEDS UPDATING
+    def addIfValid(self, mv: Move, moves: list[Move], checkTesting: bool, allowCapture: bool = True) -> bool:
+        """Apply restrictions on moves that are common to all pieces, including staying on the board, not moving through or onto a blocked space, and not moving into check. Return True if the first two conditions are True."""
         if self.inBounds(mv) and self.moveFree(mv, allowCapture): # and not self.inCheck(mv)
-            moves.append(mv)
-            return True
+            if checkTesting or not self.board.causesCheck(mv):
+                moves.append(mv)
+            return True # indicates that movesInLine should continue to check spaces
         return False
 
     def inBounds(self, mv: Move) -> bool:
@@ -70,7 +71,7 @@ class Piece:
         lastSpace = self.board.getSpace(mv.endPos())
         return lastSpace is None or (allowCapture and lastSpace.color == self.oppositeColor())
     
-    def movesInLine(self, directions: tuple[Coordinate, ...], limitLength: bool = False) -> list[Move]:
+    def movesInLine(self, directions: tuple[Coordinate, ...], checkTesting: bool, limitLength: bool = False) -> list[Move]:
         """Return list of all moves available in directions given as a list of tuples of length 2 with values of -1, 0, or 1"""
         moves: list[Move] = []
         for dr, dc in directions:
@@ -81,66 +82,70 @@ class Piece:
                 row += dr
                 col += dc
                 currentMove.append((row,col))
-                if self.addIfValid(Move(currentMove.copy()),moves) == False:
+                if self.addIfValid(Move(currentMove.copy()),moves,checkTesting) == False:
                     break
                 if limitLength: # limit move to one space in every direction in case of King
                     break
         return moves
     
-    def getMoves(self) -> list[Move]:
+    def getMoves(self, checkTesting: bool = False) -> list[Move]:
         """Call getMoves in Piece subclass instead"""
         raise NotImplementedError
     
     def __repr__(self) -> str:
         """Return string representation of Piece for debugging"""
         return f"{type(self).__name__}({self.color}, {self.pos}, {self.hasMoved})"
-        
+    
+    def copy(self, newBoard: "Game") -> "Piece":
+        """Return a copy of self on newBoard"""
+        return type(self)(newBoard, self.color, self.pos)
+
 class King(Piece):
-    def getMoves(self) -> list[Move]:
+    def getMoves(self, checkTesting: bool = False) -> list[Move]:
         """Return list of available Moves"""
-        moves = self.movesInLine(self.allDirecitons,limitLength=True)
+        moves = self.movesInLine(self.allDirecitons,checkTesting,limitLength=True)
         if not self.hasMoved: # add castling moves
             row = self.pos[0]
             leftCorner = self.board.getSpace((row,0))
             rightCorner = self.board.getSpace((row,7))
             if isinstance(leftCorner,Rook) and not leftCorner.hasMoved: # queenside castle
                 queenside = Move([(row,4),(row,3),(row,1),(row,2)], castle = "queenside") # include (row,1) to ensure that all spaces between the rook and king are empty, even if not passed through by King
-                self.addIfValid(queenside,moves)
+                self.addIfValid(queenside,moves,checkTesting)
             if isinstance(rightCorner,Rook) and not rightCorner.hasMoved: # kingside castle
                 kingside = Move([(row,4),(row,5),(row,6)], castle = "kingside")
-                self.addIfValid(kingside,moves)
+                self.addIfValid(kingside,moves,checkTesting)
         return moves
 
     def __str__(self) -> str:
         return 'K' if self.color == 'white' else 'k'
     
 class Queen(Piece):
-    def getMoves(self) -> list[Move]:
+    def getMoves(self, checkTesting: bool = False) -> list[Move]:
         """Return list of available Moves"""
-        return self.movesInLine(self.allDirecitons)
+        return self.movesInLine(self.allDirecitons,checkTesting)
             
     def __str__(self) -> str:
         """Return string representation of Queen for text board"""
         return 'Q' if self.color == 'white' else 'q'
     
 class Bishop(Piece):
-    def getMoves(self) -> list[Move]:
+    def getMoves(self, checkTesting: bool = False) -> list[Move]:
         """Return list of available Moves"""
-        return self.movesInLine(self.diagonalDirections)
+        return self.movesInLine(self.diagonalDirections, checkTesting)
     
     def __str__(self) -> str:
         """Return string representation of Bishop for text board"""
         return 'B' if self.color == 'white' else 'b'
     
 class Knight(Piece):
-    def getMoves(self) -> list[Move]:
+    def getMoves(self, checkTesting: bool = False) -> list[Move]:
         """Return list of available Moves"""
         moves: list[Move] = []
         row = self.pos[0]
         col = self.pos[1]
         for dr, dc in ((-2,1),(-2,-1),(2,1),(2,-1),(-1,2),(-1,-2),(1,2),(1,-2)):
             candidate = Move([self.pos,(row+dr,col+dc)])
-            self.addIfValid(candidate,moves)
+            self.addIfValid(candidate,moves,checkTesting)
         return moves
     
     def __str__(self) -> str:
@@ -148,16 +153,16 @@ class Knight(Piece):
         return 'N' if self.color == 'white' else 'n'
     
 class Rook(Piece):
-    def getMoves(self) -> list[Move]:
+    def getMoves(self, checkTesting: bool = False) -> list[Move]:
         """Return list of available Moves"""
-        return self.movesInLine(self.cardinalDirections)
+        return self.movesInLine(self.cardinalDirections, checkTesting)
     
     def __str__(self) -> str:
         """Return string representation of Rook for text board"""
         return 'R' if self.color == 'white' else 'r'
     
 class Pawn(Piece):
-    def getMoves(self) -> list[Move]:
+    def getMoves(self, checkTesting: bool = False) -> list[Move]:
         """Return list of available Moves"""
         moves: list[Move] = []
         row = self.pos[0]
@@ -165,21 +170,21 @@ class Pawn(Piece):
         dr = -1 if self.color == 'white' else 1
 
         candidate = Move([self.pos, (row + dr, col)]) # single move
-        self.addIfValid(candidate, moves, allowCapture = False)
+        self.addIfValid(candidate, moves, checkTesting, allowCapture = False)
 
         if not self.hasMoved: # double move
             candidate = Move([self.pos, (row + dr, col), (row + 2 * dr, col)], doublePawn = self.color)
-            self.addIfValid(candidate, moves, allowCapture = False)
+            self.addIfValid(candidate, moves, checkTesting, allowCapture = False)
 
         endPos = (row + dr, col + 1)
         if self.hasPiece(endPos) or self.enPassant(endPos): # capture to right diagonal
             candidate = Move([self.pos, endPos])
-            self.addIfValid(candidate,moves)
+            self.addIfValid(candidate, moves, checkTesting)
 
         endPos = (row + dr, col - 1)
         if self.hasPiece(endPos) or self.enPassant(endPos): # capture to left diagonal
             candidate = Move([self.pos, endPos])
-            self.addIfValid(candidate, moves)
+            self.addIfValid(candidate, moves, checkTesting)
         
         return moves
     
