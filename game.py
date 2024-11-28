@@ -71,6 +71,10 @@ class Game:
             content = self.getSpace(pos)
             if isinstance(content, Piece) and content.color == self.turn:
                 self.visibleMoves.extend(content.getMoves())
+        
+    def _oppositeColor(self):
+        """Return the color that is not current turn"""
+        return "black" if self.turn == "white" else "white"
 
     def _copy(self) -> "Game":
         """Return a copy of self"""
