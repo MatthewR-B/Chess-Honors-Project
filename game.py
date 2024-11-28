@@ -4,12 +4,12 @@ from typing import Optional
 class Game:
     def __init__(self, populate: bool = True, checkEnabled: bool = True) -> None:
         """Initialize board and populate with starting pieces"""
-        self.board: list[list[Optional[Piece]]] = [[None]*8 for i in range(8)]
+        self._board: list[list[Optional[Piece]]] = [[None]*8 for i in range(8)]
+        self._checkEnabled = checkEnabled # False for testing of boardstates without a king
         self.moveHistory: list[Move] = []
         self.visibleMoves: list[Move] = []
         self.turn = "white"
-        self.checkEnabled = checkEnabled # False for testing of boardstates without a king
-        if populate:
+        if populate: # False for testing with an initially empty board
             pieceList = [Rook,Knight,Bishop,Queen,King,Bishop,Knight,Rook]
             for col in range(8):
                 self.setSpace(pieceList[col](self,'black',(0,col)), (0,col))
@@ -19,11 +19,11 @@ class Game:
 
     def getSpace(self, pos: Coordinate) -> Optional[Piece]:
         """Return contents of space at pos"""
-        return self.board[pos[0]][pos[1]]
+        return self._board[pos[0]][pos[1]]
 
     def setSpace(self, content: Optional[Piece], pos: Coordinate) -> None: # IF PIECE, DEFAULT TO POS OF PIECE?
         """Set contents of space at pos to content"""
-        self.board[pos[0]][pos[1]] = content
+        self._board[pos[0]][pos[1]] = content
 
     def move(self, mv: Move, checkTesting: bool = False) -> None:
         """Execute Move mv"""
@@ -70,9 +70,9 @@ class Game:
             if isinstance(content, Piece) and content.color == self.turn:
                 self.visibleMoves.extend(content.getMoves())
 
-    def copy(self) -> "Game":
+    def _copy(self) -> "Game":
         """Return a copy of self"""
-        newBoard = Game(populate=False, checkEnabled=self.checkEnabled)
+        newBoard = Game(populate=False, checkEnabled=self._checkEnabled)
         for r in range(8):
             for c in range(8):
                 content = self.getSpace((r,c))
@@ -82,9 +82,9 @@ class Game:
 
     def causesCheck(self, mv: Move) -> bool: # CONSIDER CHANGING TO inCheck AND DO COPYING AND MOVE EXECUTION IN addIfValid
         """Return True if a move results in a player putting themself in check"""
-        if not self.checkEnabled:
+        if not self._checkEnabled:
             return False
-        newBoard = self.copy()
+        newBoard = self._copy()
         for r in range(8): # find king of current player
             for c in range(8):
                 content = newBoard.getSpace((r,c))
@@ -119,7 +119,7 @@ class Game:
     
     def printBoard(self) -> None:
         """Print text representation of the board"""
-        for row in self.board:
+        for row in self._board:
             for piece in row:
                 print(str(piece) if piece else '-', end = " ")
             print()

@@ -8,18 +8,18 @@ Coordinate: TypeAlias = tuple[int,int]
 class Move:
     """Represents the potential movement of a piece from one space to another, storing the coordinates of all spaces through which the piece must travel"""
     def __init__(self, spaces: list[Coordinate], castle: str = "", doublePawn: str = "", enPassant: bool = False) -> None: # CONSIDER CHANGING CASTLE TO BOOL AND USE ENDPOS TO DETERMINE SIDE. Also store color separately and doublePawn as bool?
-        self.spaces = spaces
+        self._spaces = spaces
         self.castle = castle # kingside, queenside, or empty
         self.doublePawn = doublePawn # white, black, or empty
         self.enPassant = enPassant # True or False
 
     def startPos(self) -> Coordinate:
         """Get first space in move"""
-        return self.spaces[0]
+        return self._spaces[0]
     
     def endPos(self) -> Coordinate:
         """Get final space in move"""
-        return self.spaces[-1]
+        return self._spaces[-1]
 
     def __repr__(self) -> str:
         """Return string representation of Move"""
@@ -30,48 +30,48 @@ class Move:
 
 class Piece:
     """Parent class for all pieces, storing color, location, and whether the piece has moved yet"""
-    cardinalDirections = ((1,0),(0,-1),(-1,0),(0,1))
-    diagonalDirections = ((1,1),(1,-1),(-1,-1),(-1,1))
-    allDirecitons = cardinalDirections + diagonalDirections
+    CARDINALDIRECTIONS = ((1,0),(0,-1),(-1,0),(0,1))
+    DIAGONALDIRECTIONS = ((1,1),(1,-1),(-1,-1),(-1,1))
+    ALLDIRECTIONS = CARDINALDIRECTIONS + DIAGONALDIRECTIONS
 
     def __init__(self, board: "Game", color: str, pos: Coordinate) -> None: # CALL setSpace() IN CONSTRUCTOR
         """Initialize Piece with the board, color, and position"""
-        self.board = board
+        self._board = board
         self.color = color
         self.pos = pos
         self.hasMoved = False
 
     def hasPiece(self, pos: Coordinate) -> bool:
         """Return True if there is a piece at pos"""
-        return self.inBounds(Move([pos])) and self.board.getSpace(pos) is not None
+        return self._inBounds(Move([pos])) and self._board.getSpace(pos) is not None
     
-    def oppositeColor(self):
+    def _oppositeColor(self):
         """Return the color that is not this piece's color"""
         return "black" if self.color == "white" else "white"
 
-    def addIfValid(self, mv: Move, moves: list[Move], checkTesting: bool, allowCapture: bool = True) -> bool:
+    def _addIfValid(self, mv: Move, moves: list[Move], checkTesting: bool, allowCapture: bool = True) -> bool:
         """Apply restrictions on moves that are common to all pieces, including staying on the board, not moving through or onto a blocked space, and not moving into check. Return True if the first two conditions are True."""
-        if self.inBounds(mv) and self.moveFree(mv, allowCapture): # and not self.inCheck(mv)
-            if checkTesting or not self.board.causesCheck(mv):
+        if self._inBounds(mv) and self._moveFree(mv, allowCapture): # and not self.inCheck(mv)
+            if checkTesting or not self._board.causesCheck(mv):
                 moves.append(mv)
             return True # indicates that movesInLine should continue to check spaces
         return False
 
-    def inBounds(self, mv: Move) -> bool:
+    def _inBounds(self, mv: Move) -> bool:
         """Return True if the last space in mv is on the board"""
         row = mv.endPos()[0]
         col = mv.endPos()[1]
         return row >= 0 and row <= 7 and col >= 0 and col <= 7
     
-    def moveFree(self, mv: Move, allowCapture: bool) -> bool:
+    def _moveFree(self, mv: Move, allowCapture: bool) -> bool:
         """Return True if the last space in a move is empty or has an piece available to capture, and all other spaces are empty"""
-        for loc in mv.spaces[1:-1]: # check if all except first and last space are empty
+        for loc in mv._spaces[1:-1]: # check if all except first and last space are empty
             if self.hasPiece(loc):
                 return False
-        lastSpace = self.board.getSpace(mv.endPos())
-        return lastSpace is None or (allowCapture and lastSpace.color == self.oppositeColor())
+        lastSpace = self._board.getSpace(mv.endPos())
+        return lastSpace is None or (allowCapture and lastSpace.color == self._oppositeColor())
     
-    def movesInLine(self, directions: tuple[Coordinate, ...], checkTesting: bool, limitLength: bool = False) -> list[Move]:
+    def _movesInLine(self, directions: tuple[Coordinate, ...], checkTesting: bool, limitLength: bool = False) -> list[Move]:
         """Return list of all moves available in directions given as a list of tuples of length 2 with values of -1, 0, or 1"""
         moves: list[Move] = []
         for dr, dc in directions:
@@ -82,7 +82,7 @@ class Piece:
                 row += dr
                 col += dc
                 currentMove.append((row,col))
-                if self.addIfValid(Move(currentMove.copy()),moves,checkTesting) == False:
+                if self._addIfValid(Move(currentMove.copy()),moves,checkTesting) == False:
                     break
                 if limitLength: # limit move to one space in every direction in case of King
                     break
@@ -103,17 +103,17 @@ class Piece:
 class King(Piece):
     def getMoves(self, checkTesting: bool = False) -> list[Move]:
         """Return list of available Moves"""
-        moves = self.movesInLine(self.allDirecitons,checkTesting,limitLength=True)
+        moves = self._movesInLine(self.ALLDIRECTIONS,checkTesting,limitLength=True)
         if not self.hasMoved: # add castling moves
             row = self.pos[0]
-            leftCorner = self.board.getSpace((row,0))
-            rightCorner = self.board.getSpace((row,7))
+            leftCorner = self._board.getSpace((row,0))
+            rightCorner = self._board.getSpace((row,7))
             if isinstance(leftCorner,Rook) and not leftCorner.hasMoved: # queenside castle
                 queenside = Move([(row,4),(row,3),(row,1),(row,2)], castle = "queenside") # include (row,1) to ensure that all spaces between the rook and king are empty, even if not passed through by King
-                self.addIfValid(queenside,moves,checkTesting)
+                self._addIfValid(queenside,moves,checkTesting)
             if isinstance(rightCorner,Rook) and not rightCorner.hasMoved: # kingside castle
                 kingside = Move([(row,4),(row,5),(row,6)], castle = "kingside")
-                self.addIfValid(kingside,moves,checkTesting)
+                self._addIfValid(kingside,moves,checkTesting)
         return moves
 
     def __str__(self) -> str:
@@ -122,7 +122,7 @@ class King(Piece):
 class Queen(Piece):
     def getMoves(self, checkTesting: bool = False) -> list[Move]:
         """Return list of available Moves"""
-        return self.movesInLine(self.allDirecitons,checkTesting)
+        return self._movesInLine(self.ALLDIRECTIONS,checkTesting)
             
     def __str__(self) -> str:
         """Return string representation of Queen for text board"""
@@ -131,7 +131,7 @@ class Queen(Piece):
 class Bishop(Piece):
     def getMoves(self, checkTesting: bool = False) -> list[Move]:
         """Return list of available Moves"""
-        return self.movesInLine(self.diagonalDirections, checkTesting)
+        return self._movesInLine(self.DIAGONALDIRECTIONS, checkTesting)
     
     def __str__(self) -> str:
         """Return string representation of Bishop for text board"""
@@ -145,7 +145,7 @@ class Knight(Piece):
         col = self.pos[1]
         for dr, dc in ((-2,1),(-2,-1),(2,1),(2,-1),(-1,2),(-1,-2),(1,2),(1,-2)):
             candidate = Move([self.pos,(row+dr,col+dc)])
-            self.addIfValid(candidate,moves,checkTesting)
+            self._addIfValid(candidate,moves,checkTesting)
         return moves
     
     def __str__(self) -> str:
@@ -155,7 +155,7 @@ class Knight(Piece):
 class Rook(Piece):
     def getMoves(self, checkTesting: bool = False) -> list[Move]:
         """Return list of available Moves"""
-        return self.movesInLine(self.cardinalDirections, checkTesting)
+        return self._movesInLine(self.CARDINALDIRECTIONS, checkTesting)
     
     def __str__(self) -> str:
         """Return string representation of Rook for text board"""
@@ -170,31 +170,31 @@ class Pawn(Piece):
         dr = -1 if self.color == 'white' else 1
 
         candidate = Move([self.pos, (row + dr, col)]) # single move
-        self.addIfValid(candidate, moves, checkTesting, allowCapture = False)
+        self._addIfValid(candidate, moves, checkTesting, allowCapture = False)
 
         if not self.hasMoved: # double move
             candidate = Move([self.pos, (row + dr, col), (row + 2 * dr, col)], doublePawn = self.color)
-            self.addIfValid(candidate, moves, checkTesting, allowCapture = False)
+            self._addIfValid(candidate, moves, checkTesting, allowCapture = False)
 
         endPos = (row + dr, col + 1)
-        if self.hasPiece(endPos) or self.enPassant(endPos): # capture to right diagonal
+        if self.hasPiece(endPos) or self._enPassant(endPos): # capture to right diagonal
             candidate = Move([self.pos, endPos])
-            self.addIfValid(candidate, moves, checkTesting)
+            self._addIfValid(candidate, moves, checkTesting)
 
         endPos = (row + dr, col - 1)
-        if self.hasPiece(endPos) or self.enPassant(endPos): # capture to left diagonal
+        if self.hasPiece(endPos) or self._enPassant(endPos): # capture to left diagonal
             candidate = Move([self.pos, endPos])
-            self.addIfValid(candidate, moves, checkTesting)
+            self._addIfValid(candidate, moves, checkTesting)
         
         return moves
     
-    def enPassant(self, pos: Coordinate) -> bool:
+    def _enPassant(self, pos: Coordinate) -> bool:
         """Return True if moving to pos is a valid move by en passant"""
-        history = self.board.moveHistory
+        history = self._board.moveHistory
         if len(history) == 0:
             return False
         lastMove = history[-1]
-        return lastMove.doublePawn == self.oppositeColor() and lastMove.spaces[1] == pos
+        return lastMove.doublePawn == self._oppositeColor() and lastMove._spaces[1] == pos
 
     def __str__(self) -> str:
         """Return string representation of Pawn for text board"""

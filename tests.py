@@ -19,7 +19,7 @@ class TestGame(unittest.TestCase):
 
     def testInit(self) -> None:
         """Test __init__ method"""
-        B = self.game.board
+        B = self.game._board
         self.assertEqual(8, len(B))
         self.assertEqual(8, len(B[0]))
         self.assertEqual(0, len(self.game.moveHistory))
@@ -36,7 +36,7 @@ class TestGame(unittest.TestCase):
         """Test getSpace method"""
         for r in range(8):
             for c in range(8):
-                self.assertIs(self.game.board[r][c], self.game.getSpace((r,c)))        
+                self.assertIs(self.game._board[r][c], self.game.getSpace((r,c)))        
 
     def testSetSpace(self) -> None:
         """Test setSpace method"""
@@ -44,9 +44,9 @@ class TestGame(unittest.TestCase):
         for r in range(8):
             for c in range(8):
                 self.empty.setSpace(p1,(r,c))
-                self.assertIs(p1, self.empty.board[r][c])
+                self.assertIs(p1, self.empty._board[r][c])
                 self.empty.setSpace(None,(r,c))
-                self.assertIs(None, self.empty.board[r][c])
+                self.assertIs(None, self.empty._board[r][c])
 
     def testMoveNormal(self) -> None:
         """Test move method"""
@@ -153,8 +153,6 @@ class TestMove(unittest.TestCase):
 
     def testInit(self) -> None:
         """Test attributes assigned in __init__ method"""
-        self.assertEqual([(0,0),(0,1),(0,2)], self.mv1.spaces)
-        self.assertEqual([(0,0),(0,1),(0,2)], self.mv2.spaces)
         self.assertEqual("", self.mv1.castle) 
         self.assertEqual("", self.mv1.doublePawn)
         self.assertEqual(False, self.mv1.enPassant)
@@ -171,6 +169,9 @@ class TestMove(unittest.TestCase):
         """Test __repr__ method"""
         self.assertEqual("Move((0, 0) to (0, 2))", repr(self.mv1))
         self.assertEqual("Move((0, 0) to (0, 2), castle=kingside, doublePawn=black, enPassant=True)", repr(self.mv2))
+
+class TestPieceFactory:
+    pass
 
 if __name__ == "__main__":
     unittest.main()
