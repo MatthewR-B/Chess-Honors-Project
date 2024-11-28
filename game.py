@@ -49,7 +49,7 @@ class Game:
             self.setSpace(None, self.moveHistory[-1].endPos())
 
         oppRow = 0 if piece.color == "white" else 7
-        if isinstance(piece,Pawn) and mv.endPos()[0] == oppRow: # pawn promotion GIVE OPTION FOR UNDERPROMOTION
+        if isinstance(piece,Pawn) and mv.endPos()[0] == oppRow: # pawn promotion
             self.setSpace(Queen(self,piece.color,mv.endPos()), mv.endPos())
 
         self.turn = "black" if self.turn == "white" else "white"
@@ -57,6 +57,8 @@ class Game:
 
         if not checkTesting and self.checkmate():
             print("Checkmate")
+
+        self.turn = self._oppositeColor()
     
     def click(self, pos: Coordinate) -> None:
         """If a piece is already selected, execute the move that ends in the clicked space or deselect if another space is clicked. If a piece is not selected, highlight the moves of the clicked piece if the color matches the turn."""
@@ -85,12 +87,15 @@ class Game:
         if not self._checkEnabled:
             return False
         newBoard = self._copy()
+        king = None
         for r in range(8): # find king of current player
             for c in range(8):
                 content = newBoard.getSpace((r,c))
                 if isinstance(content, King) and content.color == self.turn:
                     king = content
                     break
+        if king is None:
+            raise RuntimeError("King not found")
         newBoard.move(mv, checkTesting=True)
         # newBoard.printBoard()
         for r in range(8):

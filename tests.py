@@ -7,7 +7,7 @@ class TestGame(unittest.TestCase):
 
     def setUp(self) -> None:
         self.game = g.Game()
-        self.empty = g.Game(populate=False)
+        self.empty = g.Game(populate=False, checkEnabled=False)
 
     def assertPiece(self, piece: Optional[p.Piece], pieceType: type, color: str, pos: p.Coordinate, hasMoved: bool) -> None:
         """Assert that piece has correct type, color, pos, and hasMoved attributes"""
@@ -132,14 +132,17 @@ class TestGame(unittest.TestCase):
         click((0,0)) # click on piece with no moves
         self.assertEqual(0, len(M))
         self.assertEqual(0, len(H))
-        click((1,0)) # click on pawn with two moves
+        click((6,0)) # click on pawn with two moves
         self.assertEqual(2, len(M))
         self.assertEqual(0, len(H))
         click((1,1)) # click away from pawn
         self.assertEqual(0, len(M))
         self.assertEqual(0, len(H))
-        click((1,0)) # click on pawn with two moves
-        click((3,0)) # click on available move
+        click((6,0)) # click on pawn with two moves
+        click((5,0)) # click on available move
+        self.assertEqual(0, len(M))
+        self.assertEqual(1, len(H))
+        click((6,0)) # click on pawn with moves but not on turn
         self.assertEqual(0, len(M))
         self.assertEqual(1, len(H))
 
