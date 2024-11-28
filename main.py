@@ -19,10 +19,7 @@ running = True
 
 def darker(color: tuple[int, ...]) -> tuple[int, ...]:
     """Return a tuple representing a color slightly darker than the argument"""
-    newColor = []
-    for val in color:
-        newColor.append(val - DARKERMODIFIER if val >= DARKERMODIFIER else 0)
-    return tuple(newColor)
+    return tuple(map(lambda i: i - DARKERMODIFIER if i >= DARKERMODIFIER else 0, color))
 
 while running:
     for event in pg.event.get():

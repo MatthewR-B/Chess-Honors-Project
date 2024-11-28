@@ -112,7 +112,7 @@ class Game:
                 if isinstance(content, Piece):
                     for move in content.getMoves():
                         if not self.causesCheck(move):
-                            print(move)
+                            # print(move)
                             mate = False
                             break
         return mate
@@ -121,6 +121,6 @@ class Game:
         """Print text representation of the board"""
         for row in self.board:
             for piece in row:
-                print('-' if piece == None else str(piece), end = " ")
+                print(str(piece) if piece else '-', end = " ")
             print()
         print()
