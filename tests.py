@@ -5,7 +5,7 @@ from typing import Optional, Any
 
 class TestGame(unittest.TestCase):
 
-    def setUp(self) -> None:
+    def setUp(self):
         self.game = g.Game()
         self.empty = g.Game(populate=False, checkEnabled=False)
 
@@ -17,7 +17,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual(pos, piece.pos)
         self.assertEqual(hasMoved, piece.hasMoved)
 
-    def testInit(self) -> None:
+    def testInit(self):
         """Test __init__ method"""
         B = self.game._board
         self.assertEqual(8, len(B))
@@ -32,13 +32,13 @@ class TestGame(unittest.TestCase):
             self.assertPiece(B[6][col], p.Pawn, "white", (6,col), False)
             self.assertPiece(B[7][col], pieceList[col], "white", (7,col), False)
     
-    def testGetSpace(self) -> None:
+    def testGetSpace(self):
         """Test getSpace method"""
         for r in range(8):
             for c in range(8):
                 self.assertIs(self.game._board[r][c], self.game.getSpace((r,c)))        
 
-    def testSetSpace(self) -> None:
+    def testSetSpace(self):
         """Test setSpace method"""
         p1 = p.Rook(self.empty,"black")
         for r in range(8):
@@ -48,7 +48,7 @@ class TestGame(unittest.TestCase):
                 self.empty.setSpace(None,(r,c))
                 self.assertIs(None, self.empty._board[r][c])
 
-    def testMoveNormal(self) -> None:
+    def testMoveNormal(self):
         """Test move method"""
         mv = p.Move([(0,0),(0,1)])
         with self.assertRaises(RuntimeError):
@@ -64,7 +64,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual((0,1), rook.pos)
         self.assertEqual("black", self.empty.turn)
 
-    def testMoveCastleKingside(self) -> None:
+    def testMoveCastleKingside(self):
         """Test kingside castle with move method"""
         king = p.King(self.empty,"white")
         rook = p.Rook(self.empty,"white")
@@ -81,7 +81,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual((7,6), king.pos)
         self.assertEqual("black", self.empty.turn)
 
-    def testMoveCastleQueenside(self) -> None:
+    def testMoveCastleQueenside(self):
         """Test queenside castle with move method"""
         king = p.King(self.empty,"white")
         rook = p.Rook(self.empty,"white")
@@ -98,7 +98,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual((7,2), king.pos)
         self.assertEqual("black", self.empty.turn)
 
-    def testMoveEnPassant(self) -> None:
+    def testMoveEnPassant(self):
         """Test en passant with move method"""
         pawn1 = p.Pawn(self.empty, "black")
         pawn2 = p.Pawn(self.empty, "white")
@@ -113,7 +113,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual((2,0), pawn2.pos)
         self.assertEqual("white", self.empty.turn)
 
-    def testMovePromotion(self) -> None:
+    def testMovePromotion(self):
         """Test pawn promotion with move method"""
         pawn = p.Pawn(self.empty, "white")
         self.empty.setSpace(pawn, (1,0))
@@ -121,7 +121,7 @@ class TestGame(unittest.TestCase):
         self.empty.move(mv)
         self.assertIsInstance(self.empty.getSpace((0,0)), p.Queen)
 
-    def testClick(self) -> None:
+    def testClick(self):
         """Test click method"""
         M = self.game.visibleMoves
         H = self.game.moveHistory
@@ -148,13 +148,13 @@ class TestGame(unittest.TestCase):
 
 class TestMove(unittest.TestCase):
 
-    def setUp(self) -> None:
+    def setUp(self):
         """Set up a move that is a castle and double pawn (not possible in a real game) and a Move that is neither"""
         path = [(0,0),(0,1),(0,2)]
         self.mv1 = p.Move(path)
         self.mv2 = p.Move(path, castle = "kingside", doublePawn = "black", enPassant=True)
 
-    def testInit(self) -> None:
+    def testInit(self):
         """Test attributes assigned in __init__ method"""
         self.assertEqual("", self.mv1.castle) 
         self.assertEqual("", self.mv1.doublePawn)
@@ -163,12 +163,12 @@ class TestMove(unittest.TestCase):
         self.assertEqual("black", self.mv2.doublePawn)
         self.assertEqual(True, self.mv2.enPassant)
     
-    def testGetters(self) -> None:
+    def testGetters(self):
         """Test startPos and endPos methods"""
         self.assertEqual((0,0), self.mv1.startPos())
         self.assertEqual((0,2), self.mv1.endPos())
     
-    def testRepr(self) -> None:
+    def testRepr(self):
         """Test __repr__ method"""
         self.assertEqual("Move((0, 0) to (0, 2))", repr(self.mv1))
         self.assertEqual("Move((0, 0) to (0, 2), castle=kingside, doublePawn=black, enPassant=True)", repr(self.mv2))
