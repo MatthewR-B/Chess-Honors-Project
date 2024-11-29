@@ -165,7 +165,91 @@ class TestMove(unittest.TestCase):
         self.assertEqual("Move((0, 0) to (0, 2), castle=kingside, doublePawn=black, enPassant=True)", repr(self.mv2))
 
 class TestPieceFactory:
-    pass
+
+    def setUp(self, pieceType: type[p.Piece]):
+        """Set up tests with empty boards and store the type of piece"""
+        self.pieceType = pieceType
+        self.board = g.Game(populate=False, checkEnabled=False)
+        self.checkBoard = g.Game(populate=False, checkEnabled=True)
+
+    def placePieces(self, pieces: list[p.Piece], spaces: list[p.Coordinate], board: Optional[g.Game] = None):
+        """Place multiple pieces onto the board"""
+        if board is None:
+            board = self.board
+        for i in range(len(pieces)):
+            board.setSpace(pieces[i], spaces[i])
+
+    def assertMoves(self, piece: p.Piece, expectedMoveEnds: list[p.Coordinate]):
+        """Assert that the end spaces of available moves of piece are the same as expected"""
+        moveEnds = [m.endPos() for m in piece.getMoves()]
+        self.assertCountEqual(expectedMoveEnds, moveEnds) # type: ignore
+
+    def testCopy(self):
+        """Test copy method"""
+        p1 = self.pieceType(self.board, "black")
+        self.board.setSpace(p1, (0,0))
+        copy = p1.copy(g.Game(populate=False))
+        self.assertIsNot(p1, copy)
+        self.assertEqual(p1.pos, copy.pos)
+        self.assertEqual(p1.color, copy.color)
+        self.assertEqual(p1.hasMoved, copy.hasMoved)
+
+    def testRepr(self):
+        """Test __repr__ method"""
+        piece = self.pieceType(self.board, "white")
+        self.board.setSpace(piece,(0,0))
+        self.assertEqual(f"{self.pieceType.__name__}(white,(0, 0))", repr(piece))
+
+class TestRook(TestPieceFactory, unittest.TestCase):
+    def setUp(self):
+        super().setUp(p.Rook)
+
+    def testGetMovesEmpty(self):
+        """Test getMoves on empty board"""
+        p1 = p.Rook(self.board, "white")
+        self.board.setSpace(p1, (2,3))
+        expected = [(0,3),(1,3),(3,3),(4,3),(5,3),(6,3),(7,3),(2,0),(2,1),(2,2),(2,4),(2,5),(2,6),(2,7)]
+        self.assertMoves(p1, expected)
+
+    def testGetMovesObstacles(self):
+        """Test getMoves with other pieces"""
+        p1 = p.Rook(self.board, "white")
+        p2 = p.Bishop(self.board, "white")
+        p3 = p.Pawn(self.board, "black")
+        self.placePieces([p1,p2,p3],[(5,5),(2,5),(5,3)])
+        expected = [(5,3),(5,4),(5,6),(5,7),(4,5),(3,5),(6,5),(7,5)]
+        self.assertMoves(p1, expected)
+    
+    def testGetMovesPinned(self):
+        """Test getMoves when some moves result in check"""
+        p1 = p.Rook(self.checkBoard, "white")
+        p2 = p.King(self.checkBoard, "white")
+        p3 = p.Queen(self.checkBoard, "black")
+        self.placePieces([p1,p2,p3],[(5,2),(6,2),(3,2)], self.checkBoard)
+        expected = [(4,2),(3,2)]
+        self.assertMoves(p1, expected)
+
+class TestKnight(TestPieceFactory, unittest.TestCase):
+    def setUp(self):
+        super().setUp(p.Knight)
+
+    
+
+class TestBishop(TestPieceFactory, unittest.TestCase):
+    def setUp(self):
+        super().setUp(p.Bishop)
+
+class TestQueen(TestPieceFactory, unittest.TestCase):
+    def setUp(self):
+        super().setUp(p.Queen)
+
+class TestKing(TestPieceFactory, unittest.TestCase):
+    def setUp(self):
+        super().setUp(p.King)
+
+class TestPawn(TestPieceFactory, unittest.TestCase):
+    def setUp(self):
+        super().setUp(p.Pawn)
 
 if __name__ == "__main__":
     unittest.main()
