@@ -30,9 +30,9 @@ class Move:
 
 class Piece:
     """Parent class for all pieces, storing color, location, and whether the piece has moved yet"""
-    CARDINALDIRECTIONS = ((1,0),(0,-1),(-1,0),(0,1))
-    DIAGONALDIRECTIONS = ((1,1),(1,-1),(-1,-1),(-1,1))
-    ALLDIRECTIONS = CARDINALDIRECTIONS + DIAGONALDIRECTIONS
+    CARDINAL_DIRECTIONS = ((1,0),(0,-1),(-1,0),(0,1))
+    DIAGONAL_DIRECTIONS = ((1,1),(1,-1),(-1,-1),(-1,1))
+    ALL_DIRECTIONS = CARDINAL_DIRECTIONS + DIAGONAL_DIRECTIONS
 
     def __init__(self, board: "Game", color: str) -> None:
         """Initialize Piece with the board, color, and position"""
@@ -109,7 +109,7 @@ class King(Piece):
         """Return list of available Moves"""
         if self.pos is None:
             raise RuntimeError("Piece does not have position")
-        moves = self._movesInLine(self.ALLDIRECTIONS,limitLength=True)
+        moves = self._movesInLine(self.ALL_DIRECTIONS,limitLength=True)
         if not self.hasMoved: # add castling moves
             row = self.pos[0]
             leftCorner = self._board.getSpace((row,0))
@@ -128,7 +128,7 @@ class King(Piece):
 class Queen(Piece):
     def getMoves(self) -> list[Move]:
         """Return list of available Moves"""
-        return self._movesInLine(self.ALLDIRECTIONS)
+        return self._movesInLine(self.ALL_DIRECTIONS)
             
     def __str__(self) -> str:
         """Return string representation of Queen for text board"""
@@ -137,13 +137,16 @@ class Queen(Piece):
 class Bishop(Piece):
     def getMoves(self) -> list[Move]:
         """Return list of available Moves"""
-        return self._movesInLine(self.DIAGONALDIRECTIONS)
+        return self._movesInLine(self.DIAGONAL_DIRECTIONS)
     
     def __str__(self) -> str:
         """Return string representation of Bishop for text board"""
         return 'B' if self.color == 'white' else 'b'
     
 class Knight(Piece):
+
+    L_DIRECTIONS = ((-2,1),(-2,-1),(2,1),(2,-1),(-1,2),(-1,-2),(1,2),(1,-2))
+
     def getMoves(self) -> list[Move]:
         """Return list of available Moves"""
         if self.pos is None:
@@ -151,7 +154,7 @@ class Knight(Piece):
         moves: list[Move] = []
         row = self.pos[0]
         col = self.pos[1]
-        for dr, dc in ((-2,1),(-2,-1),(2,1),(2,-1),(-1,2),(-1,-2),(1,2),(1,-2)):
+        for dr, dc in self.L_DIRECTIONS:
             candidate = Move([self.pos,(row+dr,col+dc)])
             self._addIfValid(candidate,moves)
         return moves
@@ -163,7 +166,7 @@ class Knight(Piece):
 class Rook(Piece):
     def getMoves(self) -> list[Move]:
         """Return list of available Moves"""
-        return self._movesInLine(self.CARDINALDIRECTIONS)
+        return self._movesInLine(self.CARDINAL_DIRECTIONS)
     
     def __str__(self) -> str:
         """Return string representation of Rook for text board"""
