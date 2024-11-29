@@ -31,7 +31,7 @@ class TestGame(unittest.TestCase):
 
     def testSetSpace(self):
         """Test setSpace method"""
-        p1 = p.Rook(self.empty,"black")
+        p1 = p.Rook("black")
         for r in range(8):
             for c in range(8):
                 self.empty.setSpace(p1,(r,c))
@@ -45,7 +45,7 @@ class TestGame(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self.empty.move(mv)
         
-        rook = p.Rook(self.empty,"black",)
+        rook = p.Rook("black",)
         self.empty.setSpace(rook, (0,0))
         self.empty.move(mv)
         self.assertIs(None, self.empty.getSpace((0,0)))
@@ -57,8 +57,8 @@ class TestGame(unittest.TestCase):
 
     def testMoveCastleKingside(self):
         """Test kingside castle with move method"""
-        king = p.King(self.empty,"white")
-        rook = p.Rook(self.empty,"white")
+        king = p.King("white")
+        rook = p.Rook("white")
         self.empty.setSpace(king,(7,4))
         self.empty.setSpace(rook, (7,7))
         mv = p.Move([(7,4),(7,5),(7,6)], castle="kingside")
@@ -74,8 +74,8 @@ class TestGame(unittest.TestCase):
 
     def testMoveCastleQueenside(self):
         """Test queenside castle with move method"""
-        king = p.King(self.empty,"white")
-        rook = p.Rook(self.empty,"white")
+        king = p.King("white")
+        rook = p.Rook("white")
         self.empty.setSpace(king,(7,4))
         self.empty.setSpace(rook, (7,0))
         mv = p.Move([(7,4),(7,3),(7,2)], castle="queenside")
@@ -91,8 +91,8 @@ class TestGame(unittest.TestCase):
 
     def testMoveEnPassant(self):
         """Test en passant with move method"""
-        pawn1 = p.Pawn(self.empty, "black")
-        pawn2 = p.Pawn(self.empty, "white")
+        pawn1 = p.Pawn("black")
+        pawn2 = p.Pawn("white")
         self.empty.setSpace(pawn1, (1,0))
         self.empty.setSpace(pawn2, (3,1))
         mv1 = p.Move([(1,0),(2,0),(3,0)], doublePawn="")
@@ -106,7 +106,7 @@ class TestGame(unittest.TestCase):
 
     def testMovePromotion(self):
         """Test pawn promotion with move method"""
-        pawn = p.Pawn(self.empty, "white")
+        pawn = p.Pawn("white")
         self.empty.setSpace(pawn, (1,0))
         mv = p.Move([(1,0),(0,0)])
         self.empty.move(mv)
@@ -186,7 +186,7 @@ class TestPieceFactory:
 
     def testCopy(self):
         """Test copy method"""
-        p1 = self.pieceType(self.board, "black")
+        p1 = self.pieceType("black")
         self.board.setSpace(p1, (0,0))
         copy = p1.copy(g.Game(populate=False))
         self.assertIsNot(p1, copy)
@@ -196,7 +196,7 @@ class TestPieceFactory:
 
     def testRepr(self):
         """Test __repr__ method"""
-        piece = self.pieceType(self.board, "white")
+        piece = self.pieceType("white")
         self.board.setSpace(piece,(0,0))
         self.assertEqual(f"{self.pieceType.__name__}(white,(0, 0))", repr(piece))
 
@@ -206,25 +206,25 @@ class TestRook(TestPieceFactory, unittest.TestCase):
 
     def testGetMovesEmpty(self):
         """Test getMoves on empty board"""
-        p1 = p.Rook(self.board, "white")
+        p1 = p.Rook("white")
         self.board.setSpace(p1, (2,3))
         expected = [(0,3),(1,3),(3,3),(4,3),(5,3),(6,3),(7,3),(2,0),(2,1),(2,2),(2,4),(2,5),(2,6),(2,7)]
         self.assertMoves(p1, expected)
 
     def testGetMovesObstacles(self):
         """Test getMoves with other pieces"""
-        p1 = p.Rook(self.board, "white")
-        p2 = p.Bishop(self.board, "white")
-        p3 = p.Pawn(self.board, "black")
+        p1 = p.Rook("white")
+        p2 = p.Bishop("white")
+        p3 = p.Pawn("black")
         self.placePieces([p1,p2,p3],[(5,5),(2,5),(5,3)])
         expected = [(5,3),(5,4),(5,6),(5,7),(4,5),(3,5),(6,5),(7,5)]
         self.assertMoves(p1, expected)
     
     def testGetMovesPinned(self):
         """Test getMoves when some moves result in check"""
-        p1 = p.Rook(self.checkBoard, "white")
-        p2 = p.King(self.checkBoard, "white")
-        p3 = p.Queen(self.checkBoard, "black")
+        p1 = p.Rook("white")
+        p2 = p.King("white")
+        p3 = p.Queen("black")
         self.placePieces([p1,p2,p3],[(5,2),(6,2),(3,2)], self.checkBoard)
         expected = [(4,2),(3,2)]
         self.assertMoves(p1, expected)

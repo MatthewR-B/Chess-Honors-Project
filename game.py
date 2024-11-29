@@ -12,10 +12,10 @@ class Game:
         if populate: # False for testing with an initially empty board
             pieceList = [Rook,Knight,Bishop,Queen,King,Bishop,Knight,Rook]
             for col in range(8):
-                self.setSpace(pieceList[col](self,'black'), (0,col))
-                self.setSpace(Pawn(self,'black'), (1,col))
-                self.setSpace(Pawn(self,'white'), (6,col))
-                self.setSpace(pieceList[col](self,'white'), (7,col))
+                self.setSpace(pieceList[col]('black'), (0,col))
+                self.setSpace(Pawn('black'), (1,col))
+                self.setSpace(Pawn('white'), (6,col))
+                self.setSpace(pieceList[col]('white'), (7,col))
 
     def getSpace(self, pos: Coordinate) -> Optional[Piece]:
         """Return contents of space at pos"""
@@ -25,6 +25,7 @@ class Game:
         """Set contents of space at pos"""
         self._board[pos[0]][pos[1]] = content
         if isinstance(content, Piece):
+            content.setBoard(self)
             content.pos = pos
 
     def move(self, mv: Move) -> None:
@@ -50,7 +51,7 @@ class Game:
 
         oppRow = 0 if piece.color == "white" else 7
         if isinstance(piece,Pawn) and mv.endPos()[0] == oppRow: # pawn promotion
-            self.setSpace(Queen(self,piece.color), mv.endPos())
+            self.setSpace(Queen(piece.color), mv.endPos())
 
         self.moveHistory.append(mv)
         self.turn = self._oppositeColor()

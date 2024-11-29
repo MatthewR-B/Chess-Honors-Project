@@ -7,7 +7,7 @@ Coordinate: TypeAlias = tuple[int,int]
 
 class Move:
     """Represents the potential movement of a piece from one space to another, storing the coordinates of all spaces through which the piece must travel"""
-    def __init__(self, spaces: list[Coordinate], castle: str = "", doublePawn: str = "", enPassant: bool = False) -> None: # CONSIDER CHANGING CASTLE TO BOOL AND USE ENDPOS TO DETERMINE SIDE. Also store color separately and doublePawn as bool?
+    def __init__(self, spaces: list[Coordinate], castle: str = "", doublePawn: str = "", enPassant: bool = False) -> None:
         self._spaces = spaces
         self.castle = castle # kingside, queenside, or empty
         self.doublePawn = doublePawn # white, black, or empty
@@ -34,15 +34,21 @@ class Piece:
     DIAGONAL_DIRECTIONS = ((1,1),(1,-1),(-1,-1),(-1,1))
     ALL_DIRECTIONS = CARDINAL_DIRECTIONS + DIAGONAL_DIRECTIONS
 
-    def __init__(self, board: "Game", color: str) -> None:
-        """Initialize Piece with the board, color, and position"""
-        self._board = board
+    def __init__(self, color: str) -> None:
+        """Initialize Piece with its color. _board and pos are set using the setSpace method of Game"""
+        self._board: Optional[Game] = None
+        self.pos: Optional[Coordinate] = None
         self.color = color
         self.hasMoved = False
-        self.pos: Optional[Coordinate] = None
+
+    def setBoard(self, board) -> None:
+        """Assign a board to this piece"""
+        self._board = board
 
     def _hasPiece(self, pos: Coordinate) -> bool:
         """Return True if there is a piece at pos"""
+        if self._board is None:
+            raise RuntimeError("Piece not assigned to board")
         return self._inBounds(Move([pos])) and self._board.getSpace(pos) is not None
     
     def _oppositeColor(self):
@@ -50,7 +56,9 @@ class Piece:
         return "black" if self.color == "white" else "white"
 
     def _addIfValid(self, mv: Move, moves: list[Move], allowCapture: bool = True) -> bool:
-        """Apply restrictions on moves that are common to all pieces, including staying on the board, not moving through or onto a blocked space, and not moving into check. Return True if the first two conditions are True."""
+        """Add mv to moves if it is in bounds and there are no pieces in the way. Return True if the first two conditions are met."""
+        if self._board is None:
+            raise RuntimeError("Piece not assigned to board")
         if self._inBounds(mv) and self._moveFree(mv, allowCapture):
             if not (self._board._checkEnabled and self._board.causesCheck(mv)):
                 moves.append(mv)
@@ -65,6 +73,8 @@ class Piece:
     
     def _moveFree(self, mv: Move, allowCapture: bool) -> bool:
         """Return True if the last space in a move is empty or has an piece available to capture, and all other spaces are empty"""
+        if self._board is None:
+            raise RuntimeError("Piece not assigned to board")
         for loc in mv._spaces[1:-1]: # check if all except first and last space are empty
             if self._hasPiece(loc):
                 return False
@@ -96,7 +106,8 @@ class Piece:
     
     def copy(self, newBoard: "Game") -> "Piece":
         """Return a copy of self on newBoard"""
-        new = type(self)(newBoard, self.color)
+        new = type(self)(self.color)
+        new._board = self._board
         new.pos = self.pos
         new.hasMoved = self.hasMoved
         return new
@@ -108,6 +119,8 @@ class Piece:
 class King(Piece):
     def getMoves(self) -> list[Move]:
         """Return list of available Moves"""
+        if self._board is None:
+            raise RuntimeError("Piece not assigned to board")
         if self.pos is None:
             raise RuntimeError("Piece does not have position")
         moves = self._movesInLine(self.ALL_DIRECTIONS,limitLength=True)
@@ -206,6 +219,8 @@ class Pawn(Piece):
     
     def _enPassant(self, pos: Coordinate) -> bool:
         """Return True if moving to pos is a valid move by en passant"""
+        if self._board is None:
+            raise RuntimeError("Piece not assigned to board")
         history = self._board.moveHistory
         if len(history) == 0:
             return False
