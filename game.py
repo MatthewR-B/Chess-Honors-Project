@@ -33,7 +33,6 @@ class Game:
         if piece is None:
             raise RuntimeError("Tried to move from empty space")
         piece.hasMoved = True
-        piece.pos = mv.endPos()
         self.setSpace(piece, mv.endPos())
         self.setSpace(None, mv.startPos())
         
@@ -43,7 +42,6 @@ class Game:
             rook = self.getSpace((row,oldCol))
             assert rook is not None # to make mypy happy. rook should never be None
             rook.hasMoved = True
-            rook.pos = (row,newCol)
             self.setSpace(rook,(row,newCol))
             self.setSpace(None,(row,oldCol))
         
