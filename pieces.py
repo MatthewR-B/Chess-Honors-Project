@@ -1,4 +1,4 @@
-from typing import TypeAlias, TYPE_CHECKING
+from typing import Optional, TypeAlias, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from game import Game
@@ -34,12 +34,12 @@ class Piece:
     DIAGONALDIRECTIONS = ((1,1),(1,-1),(-1,-1),(-1,1))
     ALLDIRECTIONS = CARDINALDIRECTIONS + DIAGONALDIRECTIONS
 
-    def __init__(self, board: "Game", color: str, pos: Coordinate) -> None: # CALL setSpace() IN CONSTRUCTOR
+    def __init__(self, board: "Game", color: str) -> None:
         """Initialize Piece with the board, color, and position"""
         self._board = board
         self.color = color
-        self.pos = pos
         self.hasMoved = False
+        self.pos: Optional[Coordinate] = None
 
     def hasPiece(self, pos: Coordinate) -> bool:
         """Return True if there is a piece at pos"""
@@ -73,6 +73,8 @@ class Piece:
     
     def _movesInLine(self, directions: tuple[Coordinate, ...], limitLength: bool = False) -> list[Move]:
         """Return list of all moves available in directions given as a list of tuples of length 2 with values of -1, 0, or 1"""
+        if self.pos is None:
+            raise RuntimeError("Piece does not have position")
         moves: list[Move] = []
         for dr, dc in directions:
             row = self.pos[0]
@@ -98,11 +100,15 @@ class Piece:
     
     def copy(self, newBoard: "Game") -> "Piece":
         """Return a copy of self on newBoard"""
-        return type(self)(newBoard, self.color, self.pos)
+        new = type(self)(newBoard, self.color)
+        new.pos = self.pos
+        return new
 
 class King(Piece):
     def getMoves(self) -> list[Move]:
         """Return list of available Moves"""
+        if self.pos is None:
+            raise RuntimeError("Piece does not have position")
         moves = self._movesInLine(self.ALLDIRECTIONS,limitLength=True)
         if not self.hasMoved: # add castling moves
             row = self.pos[0]
@@ -140,6 +146,8 @@ class Bishop(Piece):
 class Knight(Piece):
     def getMoves(self) -> list[Move]:
         """Return list of available Moves"""
+        if self.pos is None:
+            raise RuntimeError("Piece does not have position")
         moves: list[Move] = []
         row = self.pos[0]
         col = self.pos[1]
