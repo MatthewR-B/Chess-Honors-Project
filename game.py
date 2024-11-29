@@ -93,8 +93,13 @@ class Game:
                 content = self._board[r][c]
                 if isinstance(content, Piece) and (color is None or content.color == color):
                     yield content
+    
+    def _moves(self, color: Optional[str] = None) -> Generator[Move]:
+        """Iterate over moves of all pieces with matching color if specified"""
+        for p in self._pieces(color):
+            for m in p.getMoves():
+                yield m
 
-    def causesCheck(self, mv: Move) -> bool: # CONSIDER CHANGING TO inCheck AND DO COPYING AND MOVE EXECUTION IN addIfValid
         """Return True if a move results in a player putting themself in check"""
         if not self.checkEnabled:
             return False
