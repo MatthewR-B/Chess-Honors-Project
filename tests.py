@@ -9,7 +9,7 @@ class TestGame(unittest.TestCase):
         self.game = g.Game()
         self.empty = g.Game(populate=False, checkEnabled=False)
 
-    def assertPiece(self, piece: Optional[p.Piece], pieceType: type, color: str, pos: p.Coordinate, hasMoved: bool) -> None:
+    def assertPiece(self, piece: Optional[p.Piece], pieceType: type, color: str, pos: p.Coordinate, hasMoved: bool):
         """Assert that piece has correct type, color, pos, and hasMoved attributes"""
         assert piece is not None # for type checking
         self.assertIsInstance(piece,pieceType)
