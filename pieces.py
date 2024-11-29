@@ -187,13 +187,15 @@ class Pawn(Piece):
             self._addIfValid(candidate, moves, allowCapture = False)
 
         endPos = (row + dr, col + 1)
-        if self._hasPiece(endPos) or self._enPassant(endPos): # capture to right diagonal
-            candidate = Move([self.pos, endPos])
+        enPassant = self._enPassant(endPos)
+        if self._hasPiece(endPos) or enPassant: # capture to right diagonal
+            candidate = Move([self.pos, endPos], enPassant=enPassant)
             self._addIfValid(candidate, moves)
 
         endPos = (row + dr, col - 1)
-        if self._hasPiece(endPos) or self._enPassant(endPos): # capture to left diagonal
-            candidate = Move([self.pos, endPos])
+        enPassant = self._enPassant(endPos)
+        if self._hasPiece(endPos) or enPassant: # capture to left diagonal
+            candidate = Move([self.pos, endPos], enPassant=enPassant)
             self._addIfValid(candidate, moves)
         
         return moves

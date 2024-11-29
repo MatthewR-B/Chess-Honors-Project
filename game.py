@@ -86,6 +86,7 @@ class Game:
             assert p.pos is not None
             newBoard.setSpace(p.copy(newBoard), p.pos)
         newBoard.turn = self.turn
+        newBoard.moveHistory = self.moveHistory.copy()
         return newBoard
     
     def _pieces(self, color: Optional[str] = None) -> Generator[Piece]:
