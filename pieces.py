@@ -98,6 +98,7 @@ class Piece:
         """Return a copy of self on newBoard"""
         new = type(self)(newBoard, self.color)
         new.pos = self.pos
+        new.hasMoved = self.hasMoved
         return new
     
     def __repr__(self) -> str:
