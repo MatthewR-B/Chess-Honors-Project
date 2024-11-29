@@ -5,7 +5,7 @@ class Game:
     def __init__(self, populate: bool = True, checkEnabled: bool = True) -> None:
         """Initialize board and populate with starting pieces"""
         self._board: list[list[Optional[Piece]]] = [[None]*8 for i in range(8)]
-        self.checkEnabled = checkEnabled # False for testing of boardstates without a king or detecting if moves result in check
+        self._checkEnabled = checkEnabled # False for testing of boardstates without a king or detecting if moves result in check
         self.moveHistory: list[Move] = []
         self.visibleMoves: list[Move] = []
         self.turn = "white"
@@ -54,13 +54,14 @@ class Game:
         if isinstance(piece,Pawn) and mv.endPos()[0] == oppRow: # pawn promotion
             self.setSpace(Queen(self,piece.color), mv.endPos())
 
-        self.turn = "black" if self.turn == "white" else "white"
         self.moveHistory.append(mv)
-
-        if self.checkEnabled and self.checkmate():
-            print("Checkmate")
-
         self.turn = self._oppositeColor()
+
+        if self._checkEnabled and self.gameOver():
+            if self.inCheck():
+                print("Checkmate")
+            else:
+                print("Stalemate")
     
     def click(self, pos: Coordinate) -> None:
         """If a piece is already selected, execute the move that ends in the clicked space or deselect if another space is clicked. If a piece is not selected, highlight the moves of the clicked piece if the color matches the turn."""
@@ -84,6 +85,7 @@ class Game:
         for p in self._pieces():
             assert p.pos is not None
             newBoard.setSpace(p.copy(newBoard), p.pos)
+        newBoard.turn = self.turn
         return newBoard
     
     def _pieces(self, color: Optional[str] = None) -> Generator[Piece]:
@@ -100,44 +102,33 @@ class Game:
             for m in p.getMoves():
                 yield m
 
+    def causesCheck(self, mv: Move) -> bool:
         """Return True if a move results in a player putting themself in check"""
-        if not self.checkEnabled:
-            return False
         newBoard = self._copy()
-        king = None
-        for r in range(8): # find king of current player
-            for c in range(8):
-                content = newBoard.getSpace((r,c))
-                if isinstance(content, King) and content.color == self.turn:
-                    king = content
-                    break
-        if king is None:
-            raise RuntimeError("King not found")
         newBoard.move(mv)
-        # newBoard.printBoard()
-        for r in range(8):
-            for c in range(8):
-                content = newBoard.getSpace((r,c))
-                if isinstance(content, Piece) and content.color == ("black" if self.turn == "white" else "white"):
-                    possibleMoves = content.getMoves(checkTesting=True)
-                    for move in possibleMoves:
-                        if move.endPos() == king.pos:
-                            return True # There is a piece of the opposite color that could capture the king
+        newBoard.turn = self.turn
+        return newBoard.inCheck()
+
+    def inCheck(self) -> bool:
+        """Return True if the color of the current turn is in check"""
+        for p in self._pieces(self.turn): # find king of current player
+            if isinstance(p, King):
+                king = p
+                break
+        self._checkEnabled = False # prevent potential moves from themselves looking for check
+        for m in self._moves(self._oppositeColor()):
+            if m.endPos() == king.pos:
+                self._checkEnabled = True
+                return True # There is a piece of the opposite color that could capture the king
+        self._checkEnabled = True
         return False
     
-    def checkmate(self) -> bool:
-        """Return True if active player has no moves to get out of checkmate"""
-        mate = True
-        for r in range(8):
-            for c in range(8):
-                content = self.getSpace((r,c))
-                if isinstance(content, Piece):
-                    for move in content.getMoves():
-                        if not self.causesCheck(move):
-                            # print(move)
-                            mate = False
-                            break
-        return mate
+    def gameOver(self) -> bool:
+        """Return True if active player has no valid moves"""
+        for m in self._moves(self.turn):
+            if not self.causesCheck(m):
+                return False
+        return True
     
     def printBoard(self) -> None:
         """Print text representation of the board"""

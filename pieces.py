@@ -51,8 +51,8 @@ class Piece:
 
     def _addIfValid(self, mv: Move, moves: list[Move], allowCapture: bool = True) -> bool:
         """Apply restrictions on moves that are common to all pieces, including staying on the board, not moving through or onto a blocked space, and not moving into check. Return True if the first two conditions are True."""
-        if self._inBounds(mv) and self._moveFree(mv, allowCapture): # and not self.inCheck(mv)
-            if not self._board.checkEnabled or not self._board.causesCheck(mv):
+        if self._inBounds(mv) and self._moveFree(mv, allowCapture):
+            if not (self._board._checkEnabled and self._board.causesCheck(mv)):
                 moves.append(mv)
             return True # indicates that movesInLine should continue to check spaces
         return False
