@@ -18,25 +18,16 @@ class TestGame(unittest.TestCase):
         self.assertEqual(hasMoved, piece.hasMoved)
 
     def testInit(self):
-        """Test __init__ method"""
-        B = self.game._board
-        self.assertEqual(8, len(B))
-        self.assertEqual(8, len(B[0]))
+        """Test __init__ and getSpace method"""
         self.assertEqual(0, len(self.game.moveHistory))
         self.assertEqual(0, len(self.game.visibleMoves))
         self.assertEqual("white", self.game.turn)
         pieceList = [p.Rook, p.Knight, p.Bishop, p.Queen, p.King, p.Bishop, p.Knight, p.Rook]
         for col in range(8):
-            self.assertPiece(B[0][col], pieceList[col], "black", (0,col), False)
-            self.assertPiece(B[1][col], p.Pawn, "black", (1,col), False)
-            self.assertPiece(B[6][col], p.Pawn, "white", (6,col), False)
-            self.assertPiece(B[7][col], pieceList[col], "white", (7,col), False)
-    
-    def testGetSpace(self):
-        """Test getSpace method"""
-        for r in range(8):
-            for c in range(8):
-                self.assertIs(self.game._board[r][c], self.game.getSpace((r,c)))        
+            self.assertPiece(self.game.getSpace((0,col)), pieceList[col], "black", (0,col), False)
+            self.assertPiece(self.game.getSpace((1,col)), p.Pawn, "black", (1,col), False)
+            self.assertPiece(self.game.getSpace((6,col)), p.Pawn, "white", (6,col), False)
+            self.assertPiece(self.game.getSpace((7,col)), pieceList[col], "white", (7,col), False)    
 
     def testSetSpace(self):
         """Test setSpace method"""
@@ -44,9 +35,9 @@ class TestGame(unittest.TestCase):
         for r in range(8):
             for c in range(8):
                 self.empty.setSpace(p1,(r,c))
-                self.assertIs(p1, self.empty._board[r][c])
+                self.assertIs(p1, self.empty.getSpace((r,c)))
                 self.empty.setSpace(None,(r,c))
-                self.assertIs(None, self.empty._board[r][c])
+                self.assertIs(None, self.empty.getSpace((r,c)))
 
     def testMoveNormal(self):
         """Test move method"""
