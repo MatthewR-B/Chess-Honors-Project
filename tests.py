@@ -40,7 +40,7 @@ class TestGame(unittest.TestCase):
 
     def testSetSpace(self) -> None:
         """Test setSpace method"""
-        p1 = p.Rook(self.empty,"black",(0,0))
+        p1 = p.Rook(self.empty,"black")
         for r in range(8):
             for c in range(8):
                 self.empty.setSpace(p1,(r,c))
@@ -54,7 +54,7 @@ class TestGame(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self.empty.move(mv)
         
-        rook = p.Rook(self.empty,"black",(0,0))
+        rook = p.Rook(self.empty,"black",)
         self.empty.setSpace(rook, (0,0))
         self.empty.move(mv)
         self.assertIs(None, self.empty.getSpace((0,0)))
@@ -66,8 +66,8 @@ class TestGame(unittest.TestCase):
 
     def testMoveCastleKingside(self) -> None:
         """Test kingside castle with move method"""
-        king = p.King(self.empty,"white",(7,4))
-        rook = p.Rook(self.empty,"white",(7,6))
+        king = p.King(self.empty,"white")
+        rook = p.Rook(self.empty,"white")
         self.empty.setSpace(king,(7,4))
         self.empty.setSpace(rook, (7,7))
         mv = p.Move([(7,4),(7,5),(7,6)], castle="kingside")
@@ -83,8 +83,8 @@ class TestGame(unittest.TestCase):
 
     def testMoveCastleQueenside(self) -> None:
         """Test queenside castle with move method"""
-        king = p.King(self.empty,"white",(7,4))
-        rook = p.Rook(self.empty,"white",(7,0))
+        king = p.King(self.empty,"white")
+        rook = p.Rook(self.empty,"white")
         self.empty.setSpace(king,(7,4))
         self.empty.setSpace(rook, (7,0))
         mv = p.Move([(7,4),(7,3),(7,2)], castle="queenside")
@@ -100,8 +100,8 @@ class TestGame(unittest.TestCase):
 
     def testMoveEnPassant(self) -> None:
         """Test en passant with move method"""
-        pawn1 = p.Pawn(self.empty, "black", (1,0))
-        pawn2 = p.Pawn(self.empty, "white", (3,1))
+        pawn1 = p.Pawn(self.empty, "black")
+        pawn2 = p.Pawn(self.empty, "white")
         self.empty.setSpace(pawn1, (1,0))
         self.empty.setSpace(pawn2, (3,1))
         mv1 = p.Move([(1,0),(2,0),(3,0)], doublePawn="")
@@ -115,7 +115,7 @@ class TestGame(unittest.TestCase):
 
     def testMovePromotion(self) -> None:
         """Test pawn promotion with move method"""
-        pawn = p.Pawn(self.empty, "white", (1,0))
+        pawn = p.Pawn(self.empty, "white")
         self.empty.setSpace(pawn, (1,0))
         mv = p.Move([(1,0),(0,0)])
         self.empty.move(mv)
