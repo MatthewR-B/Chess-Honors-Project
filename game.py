@@ -5,7 +5,7 @@ class Game:
     def __init__(self, populate: bool = True, checkEnabled: bool = True) -> None:
         """Initialize board and populate with starting pieces"""
         self._board: list[list[Optional[Piece]]] = [[None]*8 for i in range(8)]
-        self._checkEnabled = checkEnabled # False for testing of boardstates without a king
+        self.checkEnabled = checkEnabled # False for testing of boardstates without a king or detecting if moves result in check
         self.moveHistory: list[Move] = []
         self.visibleMoves: list[Move] = []
         self.turn = "white"
@@ -25,7 +25,7 @@ class Game:
         """Set contents of space at pos to content"""
         self._board[pos[0]][pos[1]] = content
 
-    def move(self, mv: Move, checkTesting: bool = False) -> None:
+    def move(self, mv: Move) -> None:
         """Execute Move mv"""
         piece = self.getSpace(mv.startPos())
         if piece is None:
@@ -55,7 +55,7 @@ class Game:
         self.turn = "black" if self.turn == "white" else "white"
         self.moveHistory.append(mv)
 
-        if not checkTesting and self.checkmate():
+        if self.checkEnabled and self.checkmate():
             print("Checkmate")
 
         self.turn = self._oppositeColor()
@@ -78,7 +78,7 @@ class Game:
 
     def _copy(self) -> "Game":
         """Return a copy of self"""
-        newBoard = Game(populate=False, checkEnabled=self._checkEnabled)
+        newBoard = Game(populate=False, checkEnabled=False)
         for r in range(8):
             for c in range(8):
                 content = self.getSpace((r,c))
@@ -88,7 +88,7 @@ class Game:
 
     def causesCheck(self, mv: Move) -> bool: # CONSIDER CHANGING TO inCheck AND DO COPYING AND MOVE EXECUTION IN addIfValid
         """Return True if a move results in a player putting themself in check"""
-        if not self._checkEnabled:
+        if not self.checkEnabled:
             return False
         newBoard = self._copy()
         king = None
@@ -100,7 +100,7 @@ class Game:
                     break
         if king is None:
             raise RuntimeError("King not found")
-        newBoard.move(mv, checkTesting=True)
+        newBoard.move(mv)
         # newBoard.printBoard()
         for r in range(8):
             for c in range(8):
