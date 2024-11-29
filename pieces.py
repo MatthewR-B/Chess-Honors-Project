@@ -41,7 +41,7 @@ class Piece:
         self.hasMoved = False
         self.pos: Optional[Coordinate] = None
 
-    def hasPiece(self, pos: Coordinate) -> bool:
+    def _hasPiece(self, pos: Coordinate) -> bool:
         """Return True if there is a piece at pos"""
         return self._inBounds(Move([pos])) and self._board.getSpace(pos) is not None
     
@@ -66,7 +66,7 @@ class Piece:
     def _moveFree(self, mv: Move, allowCapture: bool) -> bool:
         """Return True if the last space in a move is empty or has an piece available to capture, and all other spaces are empty"""
         for loc in mv._spaces[1:-1]: # check if all except first and last space are empty
-            if self.hasPiece(loc):
+            if self._hasPiece(loc):
                 return False
         lastSpace = self._board.getSpace(mv.endPos())
         return lastSpace is None or (allowCapture and lastSpace.color == self._oppositeColor())
@@ -103,6 +103,10 @@ class Piece:
         new = type(self)(newBoard, self.color)
         new.pos = self.pos
         return new
+    
+    def __repr__(self) -> str:
+        """Return string representation of Piece for debugging"""
+        return f"{type(self).__name__}({self.color}, {self.pos})"
 
 class King(Piece):
     def getMoves(self) -> list[Move]:
@@ -187,12 +191,12 @@ class Pawn(Piece):
             self._addIfValid(candidate, moves, allowCapture = False)
 
         endPos = (row + dr, col + 1)
-        if self.hasPiece(endPos) or self._enPassant(endPos): # capture to right diagonal
+        if self._hasPiece(endPos) or self._enPassant(endPos): # capture to right diagonal
             candidate = Move([self.pos, endPos])
             self._addIfValid(candidate, moves)
 
         endPos = (row + dr, col - 1)
-        if self.hasPiece(endPos) or self._enPassant(endPos): # capture to left diagonal
+        if self._hasPiece(endPos) or self._enPassant(endPos): # capture to left diagonal
             candidate = Move([self.pos, endPos])
             self._addIfValid(candidate, moves)
         
