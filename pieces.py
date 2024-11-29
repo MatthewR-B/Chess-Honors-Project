@@ -102,7 +102,7 @@ class Piece:
     
     def __repr__(self) -> str:
         """Return string representation of Piece for debugging"""
-        return f"{type(self).__name__}({self.color}, {self.pos})"
+        return f"{type(self).__name__}({self.color},{self.pos})"
 
 class King(Piece):
     def getMoves(self) -> list[Move]:
