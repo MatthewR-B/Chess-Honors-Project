@@ -1,5 +1,5 @@
 from pieces import Move, Piece, King, Queen, Bishop, Knight, Rook, Pawn, Coordinate
-from typing import Optional
+from typing import Optional, Generator
 
 class Game:
     def __init__(self, populate: bool = True, checkEnabled: bool = True) -> None:
@@ -79,12 +79,18 @@ class Game:
     def _copy(self) -> "Game":
         """Return a copy of self"""
         newBoard = Game(populate=False, checkEnabled=False)
+        for p in self._pieces():
+            assert p.pos is not None
+            newBoard.setSpace(p.copy(newBoard), p.pos)
+        return newBoard
+    
+    def _pieces(self, color: Optional[str] = None) -> Generator[Piece]:
+        """Iterate over all pieces with matching color if specified"""
         for r in range(8):
             for c in range(8):
-                content = self.getSpace((r,c))
-                if isinstance(content, Piece):
-                    newBoard.setSpace(content.copy(newBoard),(r,c))
-        return newBoard
+                content = self._board[r][c]
+                if isinstance(content, Piece) and (color is None or content.color == color):
+                    yield content
 
     def causesCheck(self, mv: Move) -> bool: # CONSIDER CHANGING TO inCheck AND DO COPYING AND MOVE EXECUTION IN addIfValid
         """Return True if a move results in a player putting themself in check"""
