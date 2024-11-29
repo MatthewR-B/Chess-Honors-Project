@@ -94,10 +94,6 @@ class Piece:
         """Call getMoves in Piece subclass instead"""
         raise NotImplementedError
     
-    def __repr__(self) -> str:
-        """Return string representation of Piece for debugging"""
-        return f"{type(self).__name__}({self.color}, {self.pos}, {self.hasMoved})"
-    
     def copy(self, newBoard: "Game") -> "Piece":
         """Return a copy of self on newBoard"""
         new = type(self)(newBoard, self.color)
