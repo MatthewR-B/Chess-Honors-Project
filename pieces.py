@@ -20,6 +20,10 @@ class Move:
     def endPos(self) -> Coordinate:
         """Get final space in move"""
         return self._spaces[-1]
+    
+    def partialCastle(self) -> "Move":
+        """Return a new Move including the first two spaces of self for testing if castling moves through check"""
+        return Move(self._spaces[0:2])
 
     def __repr__(self) -> str:
         """Return string representation of Move"""
@@ -56,12 +60,17 @@ class Piece:
         return "black" if self.color == "white" else "white"
 
     def _addIfValid(self, mv: Move, moves: list[Move], allowCapture: bool = True) -> bool:
-        """Add mv to moves if it is in bounds and there are no pieces in the way. Return True if the first two conditions are met."""
+        """Add mv to moves if it is in bounds, there are no pieces in the way, and it does not cause check. Return True if the first two conditions are met."""
         if self._board is None:
             raise RuntimeError("Piece not assigned to board")
         if self._inBounds(mv) and self._moveFree(mv, allowCapture):
-            if not (self._board._checkEnabled and self._board.causesCheck(mv)):
+            if not self._board.checkEnabled:
                 moves.append(mv)
+            elif not self._board.causesCheck(mv):
+                if not mv.castle:
+                    moves.append(mv)
+                elif not self._board.causesCheck(mv.partialCastle()) and not self._board.inCheck(): # only add a castle move if not starting in or moving through check 
+                    moves.append(mv)
             return True # indicates that movesInLine should continue to check spaces
         return False
 
