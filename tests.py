@@ -441,6 +441,49 @@ class TestKing(TestPieceFactory, unittest.TestCase):
 class TestPawn(TestPieceFactory, unittest.TestCase):
     def setUp(self):
         super().setUp(p.Pawn)
+    
+    def testGetMovesEmpty(self):
+        """Test getMoves on a pawn of each color on an otherwise empty board"""
+        p1 = p.Pawn("white")
+        p2 = p.Pawn("black")
+        self.placePieces([p1,p2],[(6,5),(1,2)])
+        expected1 = [(5,5),(4,5)]
+        expected2 = [(2,2),(3,2)]
+        self.assertMoves(p1, expected1)
+        self.assertMoves(p2, expected2)
+        # move pawns away from starting positions
+        self.move([(6,5),(5,5)])
+        self.move([(1,2),(2,2)])
+        expected1.remove((5,5))
+        expected2.remove((2,2))
+        self.assertMoves(p1, expected1)
+        self.assertMoves(p2, expected2)
+    
+    def testGetMovesObstacles(self):
+        """Test getMoves with other pieces in the way"""
+        p1 = p.Pawn("white")
+        p2 = p.Pawn("black")
+        p3 = p.Knight("black")
+        self.placePieces([p1,p2,p3],[(6,4),(4,5),(5,4)])
+        expected1 = []
+        self.assertMoves(p1, expected1)
+        self.move([(4,5),(5,5)])
+        expected1 = [(5,5)]
+        expected2 = [(6,4),(6,5)]
+        self.assertMoves(p1, expected1)
+        self.assertMoves(p2, expected2)
+
+    def testGetMovesEnPassant(self):
+        """Test getMoves when en passant available"""
+        p1 = p.Pawn("white")
+        p2 = p.Pawn("black")
+        self.placePieces([p1,p2],[(4,0),(1,1)])
+        self.move([(4,0),(3,0)])
+        expected = [(2,0)]
+        self.assertMoves(p1, expected)
+        self.move([(1,1),(2,1),(3,1)], doublePawn="black")
+        expected.append((2,1))
+        self.assertMoves(p1, expected)
 
 if __name__ == "__main__":
     unittest.main()
