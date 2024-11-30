@@ -56,11 +56,10 @@ class Game:
         self.moveHistory.append(mv)
         self.turn = self._oppositeColor()
 
-        if self.checkEnabled and self.gameOver():
-            if self.inCheck():
-                print("Checkmate")
-            else:
-                print("Stalemate")
+        if self.checkEnabled:
+            endState = self.gameOver()
+            if endState: 
+                print(endState)
     
     def click(self, pos: Coordinate) -> None:
         """If a piece is already selected, execute the move that ends in the clicked space or deselect if another space is clicked. If a piece is not selected, highlight the moves of the clicked piece if the color matches the turn."""
@@ -123,9 +122,12 @@ class Game:
         self.checkEnabled = True
         return False
     
-    def gameOver(self) -> bool:
-        """Return True if active player has no valid moves"""
+    def gameOver(self) -> str:
+        """Return a string 'checkmate' or 'stalemate' if the game is over, otherwise return an empty string"""
         for m in self._moves(self.turn):
             if not self.causesCheck(m):
-                return False
-        return True
+                return ""
+        if self.inCheck():
+            return "checkmate"
+        else:
+            return "stalemate"
