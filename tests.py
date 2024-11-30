@@ -8,6 +8,7 @@ class TestGame(unittest.TestCase):
     def setUp(self):
         self.game = g.Game()
         self.empty = g.Game(populate=False, checkEnabled=False)
+        self.emptyCheck = g.Game(populate=False, checkEnabled=True)
 
     def assertPiece(self, piece: Optional[p.Piece], pieceType: type, color: str, pos: p.Coordinate, hasMoved: bool):
         """Assert that piece has correct type, color, pos, and hasMoved attributes"""
@@ -16,6 +17,14 @@ class TestGame(unittest.TestCase):
         self.assertEqual(color, piece.color)
         self.assertEqual(pos, piece.pos)
         self.assertEqual(hasMoved, piece.hasMoved)
+
+    def placePieces(self, pieces: list[p.Piece], spaces: list[p.Coordinate], board: Optional[g.Game] = None, turn: str = "white"):
+        """Place multiple pieces onto board [defaults to self.empty] and set turn [defaults to white]"""
+        if board is None:
+            board = self.empty
+        board.turn = turn
+        for i in range(len(pieces)):
+            board.setSpace(pieces[i], spaces[i])
 
     def testInit(self):
         """Test __init__ and getSpace method"""
@@ -59,8 +68,7 @@ class TestGame(unittest.TestCase):
         """Test kingside castle with move method"""
         king = p.King("white")
         rook = p.Rook("white")
-        self.empty.setSpace(king,(7,4))
-        self.empty.setSpace(rook, (7,7))
+        self.placePieces([king,rook],[(7,4),(7,7)])
         mv = p.Move([(7,4),(7,5),(7,6)], castle="kingside")
         self.empty.move(mv)
         self.assertTrue(king.hasMoved)
@@ -76,8 +84,7 @@ class TestGame(unittest.TestCase):
         """Test queenside castle with move method"""
         king = p.King("white")
         rook = p.Rook("white")
-        self.empty.setSpace(king,(7,4))
-        self.empty.setSpace(rook, (7,0))
+        self.placePieces([king,rook],[(7,4),(7,0)])
         mv = p.Move([(7,4),(7,3),(7,2)], castle="queenside")
         self.empty.move(mv)
         self.assertTrue(king.hasMoved)
@@ -93,8 +100,7 @@ class TestGame(unittest.TestCase):
         """Test en passant with move method"""
         pawn1 = p.Pawn("black")
         pawn2 = p.Pawn("white")
-        self.empty.setSpace(pawn1, (1,0))
-        self.empty.setSpace(pawn2, (3,1))
+        self.placePieces([pawn1,pawn2],[(1,0),(3,1)])
         mv1 = p.Move([(1,0),(2,0),(3,0)], doublePawn="")
         mv2 = p.Move([(3,1),(2,0)], enPassant=True)
         self.empty.move(mv1)
@@ -136,6 +142,52 @@ class TestGame(unittest.TestCase):
         click((6,0)) # click on pawn with moves but not on turn
         self.assertEqual(0, len(M))
         self.assertEqual(1, len(H))
+    
+    def testCausesCheck(self):
+        """Test causesCheck method"""
+        p1 = p.King("white")
+        p2 = p.Rook("black")
+        p3 = p.King("black")
+        p4 = p.Pawn("white")
+        p5 = p.Bishop("black")
+        self.placePieces([p1,p2,p3,p4,p5],[(6,1),(5,3),(0,2),(4,3),(3,4)], board=self.emptyCheck)
+        mv = p.Move([(6,1),(5,1)])
+        self.assertTrue(self.emptyCheck.causesCheck(mv))
+        mv = p.Move([(4,3),(3,3)])
+        self.assertTrue(self.emptyCheck.causesCheck(mv))
+        mv = p.Move([(4,3),(3,4)])
+        self.assertFalse(self.emptyCheck.causesCheck(mv))
+
+    def testInCheck(self):
+        """Test inCheck method"""
+        p1 = p.King("black")
+        p2 = p.Knight("white")
+        p3 = p.King("white")
+        self.placePieces([p1,p2,p3],[(3,4),(2,2),(0,7)], board=self.emptyCheck, turn="black")
+        self.assertTrue(self.emptyCheck.inCheck())
+        self.emptyCheck.turn = "white"
+        self.assertFalse(self.emptyCheck.inCheck())
+        
+    def testGameOverCheckmate(self):
+        """Test gameOver method if checkmate"""
+        p1 = p.King("white")
+        p2 = p.Rook("black")
+        p3 = p.Rook("black")
+        p4 = p.King("black")
+        self.placePieces([p1,p2,p3,p4],[(7,3),(7,1),(6,5),(0,0)], board=self.emptyCheck)
+        self.assertEqual("checkmate", self.emptyCheck.gameOver())
+        self.emptyCheck.turn = "black"
+        self.assertEqual("", self.emptyCheck.gameOver())
+
+    def testGameOverStalemate(self):
+        """Test gameOver method if stalemate"""
+        p1 = p.King("black")
+        p2 = p.King("white")
+        p3 = p.Queen("white")
+        self.placePieces([p1,p2,p3],[(7,7),(7,5),(6,5)], board=self.emptyCheck, turn="black")
+        self.assertEqual("stalemate", self.emptyCheck.gameOver())
+        self.emptyCheck.turn = "white"
+        self.assertEqual("", self.emptyCheck.gameOver())
 
 class TestMove(unittest.TestCase):
 
@@ -181,7 +233,7 @@ class TestPieceFactory:
         self.checkBoard = g.Game(populate=False, checkEnabled=True)
 
     def placePieces(self, pieces: list[p.Piece], spaces: list[p.Coordinate], board: Optional[g.Game] = None):
-        """Place multiple pieces onto board [defaults to self.board] and set turn [defaults to white]"""
+        """Place multiple pieces onto board [defaults to self.board]"""
         if board is None:
             board = self.board
         for i in range(len(pieces)):
