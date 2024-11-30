@@ -141,9 +141,9 @@ class TestMove(unittest.TestCase):
 
     def setUp(self):
         """Set up a move that is a castle and double pawn (not possible in a real game) and a Move that is neither"""
-        path = [(0,0),(0,1),(0,2)]
-        self.mv1 = p.Move(path)
-        self.mv2 = p.Move(path, castle = "kingside", doublePawn = "black", enPassant=True)
+        self.path = [(0,0),(0,1),(0,2)]
+        self.mv1 = p.Move(self.path)
+        self.mv2 = p.Move(self.path, castle = "kingside", doublePawn = "black", enPassant=True)
 
     def testInit(self):
         """Test attributes assigned in __init__ method"""
@@ -153,6 +153,8 @@ class TestMove(unittest.TestCase):
         self.assertEqual("kingside", self.mv2.castle)
         self.assertEqual("black", self.mv2.doublePawn)
         self.assertEqual(True, self.mv2.enPassant)
+        self.assertEqual(self.path, self.mv1.spaces)
+        self.assertEqual(self.path, self.mv2.spaces)
     
     def testGetters(self):
         """Test startPos and endPos methods"""

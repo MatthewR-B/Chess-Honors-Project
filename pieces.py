@@ -8,22 +8,22 @@ Coordinate: TypeAlias = tuple[int,int]
 class Move:
     """Represents the potential movement of a piece from one space to another, storing the coordinates of all spaces through which the piece must travel"""
     def __init__(self, spaces: list[Coordinate], castle: str = "", doublePawn: str = "", enPassant: bool = False) -> None:
-        self._spaces = spaces
+        self.spaces = spaces
         self.castle = castle # kingside, queenside, or empty
         self.doublePawn = doublePawn # white, black, or empty
         self.enPassant = enPassant # True or False
 
     def startPos(self) -> Coordinate:
         """Get first space in move"""
-        return self._spaces[0]
+        return self.spaces[0]
     
     def endPos(self) -> Coordinate:
         """Get final space in move"""
-        return self._spaces[-1]
+        return self.spaces[-1]
     
     def partialCastle(self) -> "Move":
         """Return a new Move including the first two spaces of self for testing if castling moves through check"""
-        return Move(self._spaces[0:2])
+        return Move(self.spaces[0:2])
 
     def __repr__(self) -> str:
         """Return string representation of Move"""
@@ -84,7 +84,7 @@ class Piece:
         """Return True if the last space in a move is empty or has an piece available to capture, and all other spaces are empty"""
         if self._board is None:
             raise RuntimeError("Piece not assigned to board")
-        for loc in mv._spaces[1:-1]: # check if all except first and last space are empty
+        for loc in mv.spaces[1:-1]: # check if all except first and last space are empty
             if self._hasPiece(loc):
                 return False
         lastSpace = self._board.getSpace(mv.endPos())
@@ -234,7 +234,7 @@ class Pawn(Piece):
         if len(history) == 0:
             return False
         lastMove = history[-1]
-        return lastMove.doublePawn == self._oppositeColor() and lastMove._spaces[1] == pos
+        return lastMove.doublePawn == self._oppositeColor() and lastMove.spaces[1] == pos
 
     def __str__(self) -> str:
         """Return string representation of Pawn for text board"""
