@@ -129,11 +129,3 @@ class Game:
             if not self.causesCheck(m):
                 return False
         return True
-    
-    def printBoard(self) -> None:
-        """Print text representation of the board"""
-        for row in self._board:
-            for piece in row:
-                print(str(piece) if piece else '-', end = " ")
-            print()
-        print()

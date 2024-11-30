@@ -144,27 +144,16 @@ class King(Piece):
                 kingside = Move([(row,4),(row,5),(row,6)], castle = "kingside")
                 self._addIfValid(kingside,moves)
         return moves
-
-    def __str__(self) -> str:
-        return 'K' if self.color == 'white' else 'k'
     
 class Queen(Piece):
     def getMoves(self) -> list[Move]:
         """Return list of available Moves"""
         return self._movesInLine(self.ALL_DIRECTIONS)
-            
-    def __str__(self) -> str:
-        """Return string representation of Queen for text board"""
-        return 'Q' if self.color == 'white' else 'q'
     
 class Bishop(Piece):
     def getMoves(self) -> list[Move]:
         """Return list of available Moves"""
         return self._movesInLine(self.DIAGONAL_DIRECTIONS)
-    
-    def __str__(self) -> str:
-        """Return string representation of Bishop for text board"""
-        return 'B' if self.color == 'white' else 'b'
     
 class Knight(Piece):
 
@@ -182,18 +171,10 @@ class Knight(Piece):
             self._addIfValid(candidate,moves)
         return moves
     
-    def __str__(self) -> str:
-        """Return string representation of King for text board"""
-        return 'N' if self.color == 'white' else 'n'
-    
 class Rook(Piece):
     def getMoves(self) -> list[Move]:
         """Return list of available Moves"""
         return self._movesInLine(self.CARDINAL_DIRECTIONS)
-    
-    def __str__(self) -> str:
-        """Return string representation of Rook for text board"""
-        return 'R' if self.color == 'white' else 'r'
     
 class Pawn(Piece):
     def getMoves(self) -> list[Move]:
@@ -235,7 +216,3 @@ class Pawn(Piece):
             return False
         lastMove = history[-1]
         return lastMove.doublePawn == self._oppositeColor() and lastMove.spaces[1] == pos
-
-    def __str__(self) -> str:
-        """Return string representation of Pawn for text board"""
-        return 'P' if self.color == 'white' else 'p'
