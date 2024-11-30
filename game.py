@@ -5,7 +5,7 @@ class Game:
     def __init__(self, populate: bool = True, checkEnabled: bool = True) -> None:
         """Initialize board and populate with starting pieces"""
         self._board: list[list[Optional[Piece]]] = [[None]*8 for i in range(8)]
-        self._checkEnabled = checkEnabled # False for testing of boardstates without a king or detecting if moves result in check
+        self.checkEnabled = checkEnabled # False for testing of boardstates without a king or detecting if moves result in check
         self.moveHistory: list[Move] = []
         self.visibleMoves: list[Move] = []
         self.turn = "white"
@@ -56,7 +56,7 @@ class Game:
         self.moveHistory.append(mv)
         self.turn = self._oppositeColor()
 
-        if self._checkEnabled and self.gameOver():
+        if self.checkEnabled and self.gameOver():
             if self.inCheck():
                 print("Checkmate")
             else:
@@ -115,12 +115,12 @@ class Game:
             if isinstance(p, King):
                 king = p
                 break
-        self._checkEnabled = False # prevent potential moves from themselves looking for check
+        self.checkEnabled = False # prevent potential moves from themselves looking for check
         for m in self._moves(self._oppositeColor()):
             if m.endPos() == king.pos:
-                self._checkEnabled = True
+                self.checkEnabled = True
                 return True # There is a piece of the opposite color that could capture the king
-        self._checkEnabled = True
+        self.checkEnabled = True
         return False
     
     def gameOver(self) -> bool:
