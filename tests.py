@@ -155,6 +155,12 @@ class TestMove(unittest.TestCase):
         self.assertEqual(True, self.mv2.enPassant)
         self.assertEqual(self.path, self.mv1.spaces)
         self.assertEqual(self.path, self.mv2.spaces)
+
+    def testPartialCastle(self):
+        """Test partialCastle method"""
+        partial = self.mv1.partialCastle()
+        self.assertEqual((0,0), partial.startPos())
+        self.assertEqual((0,1), partial.endPos())
     
     def testGetters(self):
         """Test startPos and endPos methods"""
