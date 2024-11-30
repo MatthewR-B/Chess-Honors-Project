@@ -409,32 +409,32 @@ class TestKing(TestPieceFactory, unittest.TestCase):
         self.placePieces([p1,p2,p3,p4],[(0,4),(0,7),(0,0),(7,6)], board=self.checkBoard)
         expected = [(0,3),(1,3),(1,4),(1,5),(0,5),(0,2)]
         self.assertMoves(p1, expected)
-        # move rook but still blocking kingside
+        # move rook but still threaten kingside
         self.move([(7,6),(7,5)], self.checkBoard)
         expected.remove((0,5))
         expected.remove((1,5))
         self.assertMoves(p1, expected)
         # move rook to threaten king
-        self.move([(7,5),(7,4)])
+        self.move([(7,5),(7,4)], self.checkBoard)
         expected.append((0,5))
         expected.append((1,5))
         expected.remove((1,4))
         expected.remove((0,2))
         self.assertMoves(p1, expected)
-        # move rook out of the way of kingside and block queenside
-        self.move([(7,4),(7,3)])
-        expected.append((1,5))
+        # move rook out of the way of kingside and threaten queenside
+        self.move([(7,4),(7,3)], self.checkBoard)
+        expected.append((1,4))
         expected.append((0,6))
         expected.remove((0,3))
         expected.remove((1,3))
         self.assertMoves(p1, expected)
-        # move rook but still blocking queenside
-        self.move([(7,3),(7,2)])
+        # move rook but still threatening queenside
+        self.move([(7,3),(7,2)], self.checkBoard)
         expected.append((0,3))
         expected.append((1,3))
         self.assertMoves(p1, expected)
         # move rook out of the way to second column
-        self.move([(7,2),(7,1)])
+        self.move([(7,2),(7,1)], self.checkBoard)
         expected.append((0,2))
         self.assertMoves(p1, expected)
 
